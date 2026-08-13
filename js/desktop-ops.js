@@ -87,26 +87,14 @@ function hideOverlay() {
 function stopAllEffects() {
     activeEffects.clear();
     hideOverlay();
-    resetToolCards();
-}
-
-// 重置工具卡片状态
-function resetToolCards() {
-    document.querySelectorAll('.do-tool-card').forEach(card => {
-        card.classList.remove('active');
-        card.querySelector('.tool-start-btn').classList.remove('hidden');
-        card.querySelector('.tool-stop-btn').classList.add('hidden');
+    // 重置所有工具卡片
+    document.querySelectorAll('.do-tool.run').forEach(card => {
+        card.classList.remove('run');
+        const startBtn = card.querySelector('.start');
+        const stopBtn = card.querySelector('.stop');
+        if (startBtn) startBtn.classList.remove('hidden');
+        if (stopBtn) stopBtn.classList.add('hidden');
     });
-}
-
-// 设置工具卡片状态
-function setToolActive(toolId) {
-    const card = document.getElementById(toolId);
-    if (card) {
-        card.classList.add('active');
-        card.querySelector('.tool-start-btn').classList.add('hidden');
-        card.querySelector('.tool-stop-btn').classList.remove('hidden');
-    }
 }
 
 // ========== 1. 重力器 ==========
@@ -116,7 +104,8 @@ function startGravity() {
     if (gravityActive) return;
     gravityActive = true;
     activeEffects.add('gravity');
-    setToolActive('tool-gravity');
+    const card = document.getElementById('dt-gravity');
+    if (card) { card.classList.add('run'); card.querySelector('.start').classList.add('hidden'); card.querySelector('.stop').classList.remove('hidden'); }
 
     showOverlay();
 
@@ -192,8 +181,8 @@ function stopGravity() {
     if (activeEffects.size === 0 && !mouseFinderActive) {
         hideOverlay();
     }
-
-    resetToolCard('tool-gravity');
+    const card = document.getElementById('dt-gravity');
+    if (card) { card.classList.remove('run'); card.querySelector('.start').classList.remove('hidden'); card.querySelector('.stop').classList.add('hidden'); }
 }
 
 // ========== 2. 失重器 ==========
@@ -203,7 +192,8 @@ function startZeroG() {
     if (zeroGActive) return;
     zeroGActive = true;
     activeEffects.add('zeroG');
-    setToolActive('tool-zero-g');
+    const card = document.getElementById('dt-zeroG');
+    if (card) { card.classList.add('run'); card.querySelector('.start').classList.add('hidden'); card.querySelector('.stop').classList.remove('hidden'); }
 
     showOverlay();
 
@@ -268,8 +258,8 @@ function stopZeroG() {
     if (activeEffects.size === 0 && !mouseFinderActive) {
         hideOverlay();
     }
-
-    resetToolCard('tool-zero-g');
+    const card = document.getElementById('dt-zeroG');
+    if (card) { card.classList.remove('run'); card.querySelector('.start').classList.remove('hidden'); card.querySelector('.stop').classList.add('hidden'); }
 }
 
 // ========== 3. 图标消失器 ==========
@@ -280,7 +270,8 @@ function startHideIcons() {
     if (hideIconsActive) return;
     hideIconsActive = true;
     activeEffects.add('hide');
-    setToolActive('tool-hide');
+    const card = document.getElementById('dt-hide');
+    if (card) { card.classList.add('run'); card.querySelector('.start').classList.add('hidden'); card.querySelector('.stop').classList.remove('hidden'); }
 
     showOverlay();
 
@@ -385,8 +376,8 @@ function stopHideIcons() {
     if (activeEffects.size === 0 && !mouseFinderActive) {
         hideOverlay();
     }
-
-    resetToolCard('tool-hide');
+    const card = document.getElementById('dt-hide');
+    if (card) { card.classList.remove('run'); card.querySelector('.start').classList.remove('hidden'); card.querySelector('.stop').classList.add('hidden'); }
 }
 
 // ========== 4. 图标打架器 ==========
@@ -396,7 +387,8 @@ function startFight() {
     if (fightActive) return;
     fightActive = true;
     activeEffects.add('fight');
-    setToolActive('tool-fight');
+    const card = document.getElementById('dt-fight');
+    if (card) { card.classList.add('run'); card.querySelector('.start').classList.add('hidden'); card.querySelector('.stop').classList.remove('hidden'); }
 
     showOverlay();
 
@@ -485,8 +477,8 @@ function stopFight() {
     if (activeEffects.size === 0 && !mouseFinderActive) {
         hideOverlay();
     }
-
-    resetToolCard('tool-fight');
+    const card = document.getElementById('dt-fight');
+    if (card) { card.classList.remove('run'); card.querySelector('.start').classList.remove('hidden'); card.querySelector('.stop').classList.add('hidden'); }
 }
 
 // ========== 5. 鼠标寻找器 ==========
@@ -496,7 +488,8 @@ function startMouseFinder() {
     if (mouseFinderActive) return;
     mouseFinderActive = true;
     activeEffects.add('mouse');
-    setToolActive('tool-mouse');
+    const card = document.getElementById('dt-mouse');
+    if (card) { card.classList.add('run'); card.querySelector('.start').classList.add('hidden'); card.querySelector('.stop').classList.remove('hidden'); }
 
     const arrow = document.getElementById('mouse-arrow');
     arrow.classList.remove('hidden');
@@ -529,15 +522,55 @@ function stopMouseFinder() {
 
     document.removeEventListener('mousemove', updateMouseArrow);
 
-    resetToolCard('tool-mouse');
+    const card = document.getElementById('dt-mouse');
+    if (card) { card.classList.remove('run'); card.querySelector('.start').classList.remove('hidden'); card.querySelector('.stop').classList.add('hidden'); }
 }
 
-// 工具卡片重置辅助函数
+// 工具卡片重置辅助函数（保留兼容）
 function resetToolCard(toolId) {
     const card = document.getElementById(toolId);
     if (card) {
         card.classList.remove('active');
-        card.querySelector('.tool-start-btn').classList.remove('hidden');
-        card.querySelector('.tool-stop-btn').classList.add('hidden');
+        const sb = card.querySelector('.tool-start-btn');
+        const tb = card.querySelector('.tool-stop-btn');
+        if (sb) sb.classList.remove('hidden');
+        if (tb) tb.classList.add('hidden');
     }
+}
+
+// ========== 浏览器模拟：桌面图标显示 ==========
+function showOverlay() {
+    const overlay = document.getElementById('overlay');
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    createDesktopIcons();
+}
+
+function hideOverlay() {
+    const overlay = document.getElementById('overlay');
+    if (overlay) overlay.classList.add('hidden');
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+}
+
+function initDesktopOverlay() {
+    overlayEl = document.getElementById('overlay');
+    containerEl = document.getElementById('desktop-icons-container');
+}
+
+function createDesktopIcons() {
+    initDesktopOverlay();
+    if (!containerEl) return;
+    containerEl.innerHTML = '';
+    iconsState = [];
+    DESKTOP_ICONS.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = 'dicon';
+        el.innerHTML = `<div class="di">${item.icon}</div><div class="dl">${item.label}</div>`;
+        const baseX = 40 + (index % 8) * 90;
+        const baseY = 40 + Math.floor(index / 8) * 100;
+        el.style.left = baseX + 'px';
+        el.style.top = baseY + 'px';
+        containerEl.appendChild(el);
+        iconsState.push({ el, originX: baseX, originY: baseY, x: baseX, y: baseY, vx: 0, vy: 0 });
+    });
 }
