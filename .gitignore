@@ -1,0 +1,10 @@
+# 构建产物
+desktop_app/dist/
+desktop_app/build/
+desktop_app/*.spec
+__pycache__/
+*.pyc
+.env
+
+# 依赖环境
+*.venv/
