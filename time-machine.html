@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⏰ 时空穿梭机 v2.0 · Young Lab</title>
+<title>⏰ 时空穿梭机 v3.0 · yanzien Lab</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
 <style>
 :root{
@@ -19,7 +19,6 @@ body{
   color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;
   overflow-x:hidden;position:relative;
 }
-/* 背景星点 */
 body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,#fff3,transparent),radial-gradient(1px 1px at 70% 60%,#fff2,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#fff2,transparent);opacity:.5;pointer-events:none}
 
 .top{width:100%;max-width:640px;padding:22px;text-align:center;position:relative;z-index:2}
@@ -49,7 +48,7 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 .past-btn:hover{transform:scale(1.02);box-shadow:0 10px 24px -8px #000a}
 
 /* 穿越动画 */
-#travel{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;width:100%;max-width:640px;position:relative;z-index:2}
+#travel{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:62vh;width:100%;max-width:640px;position:relative;z-index:2}
 #travel.on{display:flex}
 .scene{position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center}
 .ring{position:absolute;border-radius:50%;border:3px solid transparent;animation:rspin 2s linear infinite;filter:drop-shadow(0 0 8px currentColor)}
@@ -59,9 +58,8 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 .r4{width:92px;height:92px;border-left-color:#8b5cf6;border-top-color:#d946ef;color:#8b5cf6;animation-duration:.8s;animation-direction:reverse}
 .r5{width:46px;height:46px;border-top-color:#ec4899;border-bottom-color:#f43f5e;color:#ec4899;animation-duration:.5s}
 @keyframes rspin{to{transform:rotate(360deg)}}
-.tlabel{position:relative;z-index:3;font-weight:800;font-size:15px;color:#fff;text-shadow:0 0 12px #fff6;animation:blink .7s ease-in-out infinite}
+.tlabel{position:relative;z-index:3;font-weight:800;font-size:15px;color:#fff;text-shadow:0 0 12px #fff6;animation:blink .7s ease-in-out infinite;text-align:center;line-height:1.5}
 @keyframes blink{50%{opacity:.35}}
-/* 晃眼闪光层 */
 .flash{position:absolute;inset:0;background:conic-gradient(from 0deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#3b82f6,#8b5cf6,#ec4899,#ef4444);opacity:.18;animation:flashspin 3s linear infinite;mix-blend-mode:screen;border-radius:24px;pointer-events:none}
 @keyframes flashspin{to{transform:rotate(360deg)}}
 .prog-wrap{width:100%;max-width:420px;margin-top:34px}
@@ -73,26 +71,33 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 .abort{margin-top:20px;padding:11px 26px;background:#2a1320;color:#fda4af;border:1px solid var(--danger);border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .abort:hover{background:var(--danger);color:#fff}
 
-/* 成功 */
+/* 成功（妥善结尾） */
 #success{display:none;text-align:center;animation:rise .5s}
 #success.on{display:block}
 .s-ico{font-size:72px;animation:pop .6s}
 @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 .s-title{font-size:26px;font-weight:800;color:var(--ok);margin:10px 0}
-.s-detail{color:var(--ink2);font-size:15px;margin-bottom:16px}
-.s-fact{background:#10261c;border:1px solid #1c4030;border-radius:14px;padding:14px;font-size:13px;color:#86efac;margin-bottom:22px}
-.s-again{padding:12px 30px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit}
+.s-detail{color:var(--ink2);font-size:15px;margin-bottom:14px}
+.s-time{font-size:13px;color:var(--ink);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:14px;display:inline-block}
+.s-fact{background:#10261c;border:1px solid #1c4030;border-radius:14px;padding:14px;font-size:13px;color:#86efac;margin-bottom:18px;line-height:1.6}
+.s-again{padding:12px 30px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit;margin:4px}
+.s-home{padding:12px 30px;border:1px solid var(--line);border-radius:13px;background:transparent;color:var(--ink2);font-weight:700;cursor:pointer;font-family:inherit;margin:4px;text-decoration:none;display:inline-block}
+.s-home:hover{background:var(--card2);color:var(--ink)}
 
-/* VIP */
-#past{display:none}
-#past.on{display:block}
+/* VIP 弹窗 */
+.vip-modal{position:fixed;inset:0;z-index:200;background:rgba(10,10,25,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;animation:fade .25s}
+.vip-modal.on{display:flex}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.vip-card{width:560px;max-width:94vw;max-height:90vh;overflow:auto;background:linear-gradient(180deg,#1c1f38,#16182c);border:1px solid #3a3d65;border-radius:24px;padding:30px;position:relative;box-shadow:0 40px 80px -20px #000a;animation:pop .3s}
+.vip-x{position:absolute;top:14px;right:14px;width:34px;height:34px;border:none;background:#ffffff18;border-radius:50%;font-size:22px;cursor:pointer;color:var(--ink2);transition:.2s}
+.vip-x:hover{background:var(--danger);color:#fff;transform:rotate(90deg)}
 .vip-badge{display:inline-block;padding:5px 16px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#5a3500;font-weight:800;letter-spacing:2px;border-radius:20px;font-size:12px;margin-bottom:14px}
 .vip-title{font-size:24px;font-weight:800;margin-bottom:4px}
-.vip-sub{color:var(--ink2);margin-bottom:20px}
-.vip-feat{text-align:left;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:22px}
+.vip-sub{color:var(--ink2);margin-bottom:18px}
+.vip-feat{text-align:left;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:20px}
 .vip-feat div{padding:6px 0;font-size:14px}
 .vip-feat .off{color:var(--muted);text-decoration:line-through}
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .plan{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:18px 12px;text-align:center;position:relative;transition:.22s}
 .plan:hover{transform:translateY(-3px);border-color:var(--p2)}
 .plan.hot{border-color:var(--a);background:linear-gradient(180deg,#2a2410,#221d12);transform:scale(1.04)}
@@ -103,16 +108,16 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 .plan .pd{font-size:11px;color:var(--ink2);margin:6px 0 12px}
 .plan button{width:100%;padding:9px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px}
 .plan.hot button{background:linear-gradient(135deg,#f59e0b,#f97316)}
-.back{display:block;margin:0 auto;padding:9px 26px;background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:14px}
-.back:hover{background:var(--card2);color:var(--ink)}
+.vip-back{display:block;margin:0 auto;padding:9px 26px;background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:14px}
+.vip-back:hover{background:var(--card2);color:var(--ink)}
 
-/* 支付 */
-#pay{display:none;text-align:center}
-#pay.on{display:block}
-.pay-title{font-size:22px;font-weight:800;margin-bottom:18px}
-.qr{width:220px;height:220px;margin:0 auto 16px;background:var(--card2);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line)}
+/* 支付弹窗 */
+#pay{display:none}
+.pay-title{font-size:22px;font-weight:800;margin-bottom:6px}
+.pay-who{color:var(--ink2);font-size:14px;margin-bottom:18px}
+.qr{width:240px;height:240px;margin:0 auto 16px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #fbbf24}
 .qr img{width:100%;height:100%;object-fit:contain}
-.qr .ph{text-align:center;color:var(--ink2);line-height:1.8;font-size:13px}
+.qr .ph{text-align:center;color:#666;line-height:1.8;font-size:13px;padding:0 14px}
 .pay-note{font-size:13px;color:var(--ink2);margin-bottom:6px}
 .pay-fine{font-size:11px;color:var(--muted);font-style:italic}
 
@@ -137,8 +142,8 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 <body>
 
 <div class="top">
-  <div class="brand"><span class="logo">⏰</span> YOUNG LAB · 时空研究所</div>
-  <h1>时空穿梭机 v2.0</h1>
+  <div class="brand"><span class="logo">⏰</span> YANZIEN LAB · 时空研究所</div>
+  <h1>时空穿梭机 v3.0</h1>
   <div class="sub">—— 穿越过去与未来，由你决定 ——</div>
 </div>
 
@@ -164,7 +169,7 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 
   <div class="ptitle">🕰️ 穿越到过去？</div>
   <div class="phint">过去藏着遗憾与秘密……但这项功能需要特权。</div>
-  <button class="past-btn" onclick="show('past')">查看「穿越到过去」详情 →</button>
+  <button class="past-btn" onclick="openVip()">查看「穿越到过去」详情 →</button>
 </div>
 
 <!-- 穿越动画 -->
@@ -183,62 +188,17 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
   <button class="abort hidden" id="abortBtn" onclick="askAbort()">🚪 中途退出</button>
 </div>
 
-<!-- 成功 -->
+<!-- 成功（妥善结尾） -->
 <div class="panel" id="success">
   <div class="s-ico">🎉</div>
   <div class="s-title" id="sTitle">穿越成功！</div>
   <div class="s-detail" id="sDetail"></div>
-  <div class="s-fact" id="sFact">💡 冷知识：你确实等了那么久，所以从某种意义上，你真的穿越了！</div>
-  <button class="s-again" onclick="reset()">再穿越一次</button>
-</div>
-
-<!-- VIP -->
-<div class="panel" id="past">
-  <div style="text-align:center">
-    <span class="vip-badge">👑 PREMIUM</span>
-    <div class="vip-title">穿越到过去 · 特权会员</div>
-    <div class="vip-sub">此功能需开通「时空特权会员」后方可使用</div>
-    <div class="vip-feat">
-      <div>✅ 无限次穿越到任意过去时间点</div>
-      <div>✅ 自定义历史时刻（精确到秒）</div>
-      <div>✅ 改变历史轨迹（效果待观测）</div>
-      <div>✅ 优先客服 & 专属通道</div>
-      <div class="off">❌ 修复人生遗憾（研发中，敬请期待）</div>
-    </div>
-    <div class="plans">
-      <div class="plan hot">
-        <div class="ribbon">🔥 限时特惠</div>
-        <div class="pn">首充体验</div>
-        <div class="pp"><small>¥</small>0.1</div>
-        <div class="pd">半个月 · 新用户专享</div>
-        <button onclick="pay()">立即开通</button>
-      </div>
-      <div class="plan">
-        <div class="pn">连续包月</div>
-        <div class="pp"><small>¥</small>5</div>
-        <div class="pd">每月自动续费</div>
-        <button onclick="pay()">立即开通</button>
-      </div>
-      <div class="plan">
-        <div class="pn">年度尊享</div>
-        <div class="pp"><small>¥</small>50</div>
-        <div class="pd">省 ¥10 · 最划算</div>
-        <button onclick="pay()">立即开通</button>
-      </div>
-    </div>
-    <button class="back" onclick="show('main')">← 返回</button>
+  <div class="s-time" id="sTime"></div>
+  <div class="s-fact" id="sFact"></div>
+  <div>
+    <button class="s-again" onclick="reset()">⏰ 再穿越一次</button>
+    <a class="s-home" href="index.html">🏠 回到首页</a>
   </div>
-</div>
-
-<!-- 支付 -->
-<div class="panel" id="pay">
-  <div class="pay-title">💳 请加 Young 微信付款</div>
-  <div class="qr">
-    <img src="assets/young-wechat.png" alt="Young微信" onerror="this.parentNode.innerHTML='<div class=\'ph\'>📱 请加 Young 微信付款<br>微信号：搜索 Young</div>'">
-  </div>
-  <div class="pay-note">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
-  <div class="pay-fine">* 本支付为真实有效支付（确信）</div>
-  <button class="back" style="margin-top:16px" onclick="show('past')">← 返回</button>
 </div>
 
 <!-- 警告 -->
@@ -259,7 +219,63 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
   </div>
 </div>
 
-<div class="foot">Young's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
+<!-- VIP 弹窗（替代原下方页面） -->
+<div class="vip-modal" id="vipModal">
+  <div class="vip-card">
+    <button class="vip-x" onclick="closeVip()">×</button>
+    <div style="text-align:center">
+      <span class="vip-badge">👑 PREMIUM</span>
+      <div class="vip-title">穿越到过去 · 特权会员</div>
+      <div class="vip-sub">此功能需开通「时空特权会员」后方可使用</div>
+      <div class="vip-feat">
+        <div>✅ 无限次穿越到任意过去时间点</div>
+        <div>✅ 自定义历史时刻（精确到秒）</div>
+        <div>✅ 改变历史轨迹（效果待观测）</div>
+        <div>✅ 优先客服 & 专属通道</div>
+        <div class="off">❌ 修复人生遗憾（研发中，敬请期待）</div>
+      </div>
+      <div class="plans">
+        <div class="plan hot">
+          <div class="ribbon">🔥 限时特惠</div>
+          <div class="pn">首充体验</div>
+          <div class="pp"><small>¥</small>0.1</div>
+          <div class="pd">半个月 · 新用户专享</div>
+          <button onclick="pay()">立即开通</button>
+        </div>
+        <div class="plan">
+          <div class="pn">连续包月</div>
+          <div class="pp"><small>¥</small>5</div>
+          <div class="pd">每月自动续费</div>
+          <button onclick="pay()">立即开通</button>
+        </div>
+        <div class="plan">
+          <div class="pn">年度尊享</div>
+          <div class="pp"><small>¥</small>50</div>
+          <div class="pd">省 ¥10 · 最划算</div>
+          <button onclick="pay()">立即开通</button>
+        </div>
+      </div>
+      <button class="vip-back" onclick="closeVip()">← 返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- 支付（在 VIP 弹窗内切换展示） -->
+<div class="vip-modal" id="payModal">
+  <div class="vip-card" style="text-align:center">
+    <button class="vip-x" onclick="closePay()">×</button>
+    <div class="pay-title">💳 请加 Young 微信付款</div>
+    <div class="pay-who">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
+    <div class="qr">
+      <img src="assets/young-wechat.png" alt="Young微信好友二维码" onerror="this.parentNode.innerHTML='<div class=\'ph\'>📱 请加 Young 微信好友<br>付款后截图验证开通</div>'">
+    </div>
+    <div class="pay-note">支持微信好友转账 / 扫码付款，金额以所选套餐为准</div>
+    <div class="pay-fine">* 本支付为真实有效支付（确信）</div>
+    <button class="vip-back" style="margin-top:16px" onclick="backToVip()">← 返回套餐</button>
+  </div>
+</div>
+
+<div class="foot">yanzien's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
 
 <script>
 let timer=null,start=0,dur=0,abortable=false,curT=5,curU='seconds';
@@ -268,17 +284,14 @@ const UNIT_CN={seconds:'秒',minutes:'分钟',hours:'小时',days:'天'};
 function fmt(ms){if(ms<1000)return ms+'毫秒';if(ms<60000)return Math.round(ms/1000)+'秒';if(ms<3600000)return Math.round(ms/60000)+'分钟';if(ms<86400000)return Math.round(ms/3600000)+'小时';return Math.round(ms/86400000)+'天';}
 
 function show(id){
-  ['main','travel','success','past','pay','warn'].forEach(p=>document.getElementById(p).classList.remove('on'));
-  if(id==='travel')document.getElementById('travel').style.display='flex';
-  else document.getElementById('travel').style.display='none';
-  document.getElementById(id).classList.add('on');
+  ['main','travel','success','warn'].forEach(p=>{document.getElementById(p).classList.remove('on');document.getElementById(p).style.display='none';});
+  if(id==='travel'){document.getElementById('travel').style.display='flex';document.getElementById('travel').classList.add('on');}
+  else{document.getElementById(id).style.display='block';document.getElementById(id).classList.add('on');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function hideAll(){['main','travel','success','past','pay','warn'].forEach(p=>{document.getElementById(p).classList.remove('on');document.getElementById(p).style.display='none';});}
+function hideAll(){['main','travel','success','warn'].forEach(p=>{document.getElementById(p).style.display='none';document.getElementById(p).classList.remove('on');});}
 
-document.querySelectorAll('.opt[data-t]').forEach(b=>b.addEventListener('click',()=>{
-  startTravel(parseInt(b.dataset.t),b.dataset.u);
-}));
+document.querySelectorAll('.opt[data-t]').forEach(b=>b.addEventListener('click',()=>startTravel(parseInt(b.dataset.t),b.dataset.u)));
 function toggleCustom(){document.getElementById('customRow').classList.toggle('hidden');}
 function startCustom(){
   const v=parseInt(document.getElementById('cval').value);
@@ -305,28 +318,42 @@ function startTravel(t,u){
   },50);
 }
 function done(t,u){
-  let msg,det;
-  if(u==='seconds'&&t<=5){msg='恭喜你穿越到 '+t+' 秒后了！';det='你成功穿越了 '+t+' 秒，现在：'+new Date().toLocaleTimeString();}
-  else if(u==='minutes'&&t===1){msg='恭喜你穿越到 1 分钟后了！';det='1 分钟漫长等待 you made it！现在：'+new Date().toLocaleTimeString();}
-  else if(u==='minutes'&&t===5){msg='恭喜你穿越到 5 分钟后了！';det='5 分钟！你居然坚持下来了。现在：'+new Date().toLocaleTimeString();}
-  else if(u==='hours'){msg='恭喜你穿越到 '+t+' 小时后了！';det='你真的等了 '+t+' 个小时，这毅力佩服。现在：'+new Date().toLocaleTimeString();}
-  else if(u==='days'){msg='恭喜你穿越到 '+t+' 天后了！';det=t+' 天后的你，还好吗？现在：'+new Date().toLocaleDateString();}
-  else{msg='恭喜你穿越到 '+fmt(dur)+' 后了！';det='穿越耗时 '+fmt(dur)+'。当前：'+new Date().toLocaleString();}
+  const now=new Date();
+  let msg,det,fact;
+  if(u==='seconds'&&t<=5){msg='🎉 恭喜你穿越到 '+t+' 秒后了！';det='你成功穿越了 '+t+' 秒，时间虽短，但也是真穿越！';fact='💡 冷知识：你确实实实在在等了 '+t+' 秒，所以从某种意义上，你真的穿越了。';}
+  else if(u==='minutes'&&t===1){msg='🎉 恭喜你穿越到 1 分钟后了！';det='1 分钟漫长等待 you made it！';fact='💡 冷知识：这一分钟里你什么都没做，却成功抵达了「未来」。';}
+  else if(u==='minutes'&&t===5){msg='🎉 恭喜你穿越到 5 分钟后了！';det='5 分钟！你居然坚持下来了。';fact='💡 冷知识：5 分钟前你还在点按钮，现在你已经站在未来了。';}
+  else if(u==='hours'){msg='🎉 恭喜你穿越到 '+t+' 小时后了！';det='你真的等了 '+t+' 个小时，这毅力佩服。';fact='💡 冷知识：期间你的电脑可能进入了休眠，但时空引擎坚守岗位。';}
+  else if(u==='days'){msg='🎉 恭喜你穿越到 '+t+' 天后了！';det=t+' 天后的你，还好吗？';fact='💡 冷知识：' + t + ' 天 = ' + (t*24) + ' 小时 = ' + (t*1440) + ' 分钟，你全都熬过来了。';}
+  else{msg='🎉 恭喜你穿越到 '+fmt(dur)+' 后了！';det='穿越耗时 '+fmt(dur)+'。';fact='💡 冷知识：你确实实实在在等了 '+fmt(dur)+'，所以你真的穿越了！';}
   document.getElementById('sTitle').textContent=msg;
   document.getElementById('sDetail').textContent=det;
-  document.getElementById('sFact').textContent='💡 冷知识：你确实实实在在等了 '+fmt(dur)+'，所以你真的穿越了！';
+  document.getElementById('sTime').textContent='⏱ 当前时间：'+now.toLocaleString('zh-CN');
+  document.getElementById('sFact').textContent=fact;
   show('success');
 }
 function askAbort(){show('warn');}
 function doAbort(){
   const el=Date.now()-start;clearInterval(timer);timer=null;
-  document.getElementById('sTitle').textContent='你中途退出了 ⏹';
-  document.getElementById('sDetail').textContent='你只穿越了 '+fmt(el)+'。虽然没到终点，但勇气可嘉！(警告里的后果都没发生，大概吧)';
+  document.getElementById('sTitle').textContent='⏹ 你中途退出了';
+  document.getElementById('sDetail').textContent='你只穿越了 '+fmt(el)+'。虽然没到终点，但勇气可嘉！';
+  document.getElementById('sTime').textContent='⏱ 当前时间：'+new Date().toLocaleString('zh-CN');
   document.getElementById('sFact').textContent='💡 好消息：时空裂缝已自动修复，平行宇宙未分裂，你仍然只有一个你。';
   show('success');
 }
-function reset(){hideAll();show('main');document.getElementById('customRow').classList.add('hidden');document.getElementById('abortBtn').classList.add('hidden');}
-function pay(){show('pay');}
+function reset(){hideAll();document.getElementById('main').style.display='block';document.getElementById('main').classList.add('on');document.getElementById('customRow').classList.add('hidden');document.getElementById('abortBtn').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+
+/* VIP 弹窗控制 */
+function openVip(){document.getElementById('vipModal').classList.add('on');document.body.style.overflow='hidden';}
+function closeVip(){document.getElementById('vipModal').classList.remove('on');document.body.style.overflow='';}
+function pay(){document.getElementById('vipModal').classList.remove('on');document.getElementById('payModal').classList.add('on');}
+function closePay(){document.getElementById('payModal').classList.remove('on');document.body.style.overflow='';}
+function backToVip(){document.getElementById('payModal').classList.remove('on');document.getElementById('vipModal').classList.add('on');}
+
+/* 点击遮罩关闭 */
+document.getElementById('vipModal').addEventListener('click',e=>{if(e.target===document.getElementById('vipModal'))closeVip();});
+document.getElementById('payModal').addEventListener('click',e=>{if(e.target===document.getElementById('payModal'))closePay();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeVip();closePay();}});
 </script>
 </body>
 </html>
