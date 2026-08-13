@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⏰ 时空穿梭机 v2.0 · Young Lab</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
+<style>
+:root{
+  --p:#6366f1;--p2:#8b5cf6;--p3:#ec4899;--a:#f59e0b;
+  --ok:#10b981;--danger:#ef4444;--warn:#f97316;
+  --bg:#0f1020;--card:#181a2e;--card2:#20233e;--ink:#eef0ff;--ink2:#a6abce;--line:#2c2f50;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+  background:radial-gradient(circle at 20% 10%,#1c1d3a,#0f1020 60%);
+  color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;position:relative;
+}
+/* 背景星点 */
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(1px 1px at 20% 30%,#fff3,transparent),radial-gradient(1px 1px at 70% 60%,#fff2,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#fff2,transparent);opacity:.5;pointer-events:none}
+
+.top{width:100%;max-width:640px;padding:22px;text-align:center;position:relative;z-index:2}
+.brand{display:inline-flex;align-items:center;gap:8px;font-size:13px;letter-spacing:2px;color:var(--ink2);background:#ffffff10;padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.logo{font-size:30px;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b5fd,#f9a8d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--ink2);font-size:14px}
+
+.panel{width:100%;max-width:640px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px;margin:0 0 20px;box-shadow:0 30px 60px -20px #0008;position:relative;z-index:2;animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.ptitle{font-size:18px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.phint{font-size:13px;color:var(--ink2);margin-bottom:16px}
+
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{padding:14px 8px;border:1px solid var(--line);background:var(--card2);border-radius:14px;color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:.22s;font-family:inherit}
+.opt:hover{border-color:var(--p2);background:#2a2d4e;transform:translateY(-2px)}
+.opt.custom{background:linear-gradient(135deg,#26203a,#2e2440);border-style:dashed}
+.divider{display:flex;align-items:center;gap:12px;color:var(--ink2);font-size:12px;margin:22px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.custom-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.custom-row input{padding:11px 13px;width:110px;border:1px solid var(--line);background:var(--card2);border-radius:12px;color:var(--ink);font-size:15px;font-family:inherit}
+.custom-row select{padding:11px 13px;border:1px solid var(--line);background:var(--card2);border-radius:12px;color:var(--ink);font-size:15px;font-family:inherit}
+.custom-row .go{padding:11px 22px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit}
+.past-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#1f2937,#374151);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.22s;font-family:inherit}
+.past-btn:hover{transform:scale(1.02);box-shadow:0 10px 24px -8px #000a}
+
+/* 穿越动画 */
+#travel{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;width:100%;max-width:640px;position:relative;z-index:2}
+#travel.on{display:flex}
+.scene{position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center}
+.ring{position:absolute;border-radius:50%;border:3px solid transparent;animation:rspin 2s linear infinite;filter:drop-shadow(0 0 8px currentColor)}
+.r1{width:240px;height:240px;border-top-color:#ef4444;border-right-color:#f97316;color:#ef4444;animation-duration:1.6s}
+.r2{width:190px;height:190px;border-right-color:#eab308;border-bottom-color:#84cc16;color:#eab308;animation-duration:1.3s;animation-direction:reverse}
+.r3{width:140px;height:140px;border-bottom-color:#06b6d4;border-left-color:#3b82f6;color:#06b6d4;animation-duration:1s}
+.r4{width:92px;height:92px;border-left-color:#8b5cf6;border-top-color:#d946ef;color:#8b5cf6;animation-duration:.8s;animation-direction:reverse}
+.r5{width:46px;height:46px;border-top-color:#ec4899;border-bottom-color:#f43f5e;color:#ec4899;animation-duration:.5s}
+@keyframes rspin{to{transform:rotate(360deg)}}
+.tlabel{position:relative;z-index:3;font-weight:800;font-size:15px;color:#fff;text-shadow:0 0 12px #fff6;animation:blink .7s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+/* 晃眼闪光层 */
+.flash{position:absolute;inset:0;background:conic-gradient(from 0deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#3b82f6,#8b5cf6,#ec4899,#ef4444);opacity:.18;animation:flashspin 3s linear infinite;mix-blend-mode:screen;border-radius:24px;pointer-events:none}
+@keyframes flashspin{to{transform:rotate(360deg)}}
+.prog-wrap{width:100%;max-width:420px;margin-top:34px}
+.prog-label{display:flex;justify-content:space-between;font-size:13px;color:var(--warn);font-weight:700;margin-bottom:8px;animation:blink 1s infinite}
+.prog-bar{height:14px;background:#0009;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,#ef4444,#f59e0b,#eab308,#22c55e,#06b6d4,#3b82f6,#8b5cf6,#ec4899);background-size:300% 100%;animation:rainbow 1.2s linear infinite;border-radius:8px;transition:width .1s linear}
+@keyframes rainbow{to{background-position:300% 0}}
+.prog-pct{text-align:right;font-size:13px;color:var(--ink2);margin-top:6px}
+.abort{margin-top:20px;padding:11px 26px;background:#2a1320;color:#fda4af;border:1px solid var(--danger);border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.abort:hover{background:var(--danger);color:#fff}
+
+/* 成功 */
+#success{display:none;text-align:center;animation:rise .5s}
+#success.on{display:block}
+.s-ico{font-size:72px;animation:pop .6s}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.s-title{font-size:26px;font-weight:800;color:var(--ok);margin:10px 0}
+.s-detail{color:var(--ink2);font-size:15px;margin-bottom:16px}
+.s-fact{background:#10261c;border:1px solid #1c4030;border-radius:14px;padding:14px;font-size:13px;color:#86efac;margin-bottom:22px}
+.s-again{padding:12px 30px;border:none;border-radius:13px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* VIP */
+#past{display:none}
+#past.on{display:block}
+.vip-badge{display:inline-block;padding:5px 16px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#5a3500;font-weight:800;letter-spacing:2px;border-radius:20px;font-size:12px;margin-bottom:14px}
+.vip-title{font-size:24px;font-weight:800;margin-bottom:4px}
+.vip-sub{color:var(--ink2);margin-bottom:20px}
+.vip-feat{text-align:left;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:22px}
+.vip-feat div{padding:6px 0;font-size:14px}
+.vip-feat .off{color:var(--muted);text-decoration:line-through}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.plan{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:18px 12px;text-align:center;position:relative;transition:.22s}
+.plan:hover{transform:translateY(-3px);border-color:var(--p2)}
+.plan.hot{border-color:var(--a);background:linear-gradient(180deg,#2a2410,#221d12);transform:scale(1.04)}
+.plan .ribbon{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;white-space:nowrap}
+.plan .pn{font-size:13px;font-weight:700;margin-bottom:8px}
+.plan .pp{font-size:30px;font-weight:800;color:#fbbf24}
+.plan .pp small{font-size:15px;vertical-align:super}
+.plan .pd{font-size:11px;color:var(--ink2);margin:6px 0 12px}
+.plan button{width:100%;padding:9px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px}
+.plan.hot button{background:linear-gradient(135deg,#f59e0b,#f97316)}
+.back{display:block;margin:0 auto;padding:9px 26px;background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:14px}
+.back:hover{background:var(--card2);color:var(--ink)}
+
+/* 支付 */
+#pay{display:none;text-align:center}
+#pay.on{display:block}
+.pay-title{font-size:22px;font-weight:800;margin-bottom:18px}
+.qr{width:220px;height:220px;margin:0 auto 16px;background:var(--card2);border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line)}
+.qr img{width:100%;height:100%;object-fit:contain}
+.qr .ph{text-align:center;color:var(--ink2);line-height:1.8;font-size:13px}
+.pay-note{font-size:13px;color:var(--ink2);margin-bottom:6px}
+.pay-fine{font-size:11px;color:var(--muted);font-style:italic}
+
+/* 警告 */
+#warn{display:none;text-align:center}
+#warn.on{display:block}
+.w-ico{font-size:56px;animation:shake .5s infinite}
+@keyframes shake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+#warn h2{color:var(--danger);font-size:24px;margin:8px 0}
+#warn p{color:var(--ink2)}
+.w-list{text-align:left;display:inline-block;margin:14px 0;color:#fca5a5;font-size:14px;padding-left:18px}
+.w-q{font-weight:700;font-size:16px;margin:14px 0;color:var(--ink)}
+.w-acts{display:flex;gap:12px;justify-content:center;margin-top:18px}
+.w-y{padding:11px 26px;background:var(--danger);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.w-y:hover{background:#dc2626}
+.w-n{padding:11px 26px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.w-n:hover{background:var(--line)}
+
+.foot{color:var(--muted);font-size:12px;margin:10px 0 30px;text-align:center;position:relative;z-index:2}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand"><span class="logo">⏰</span> YOUNG LAB · 时空研究所</div>
+  <h1>时空穿梭机 v2.0</h1>
+  <div class="sub">—— 穿越过去与未来，由你决定 ——</div>
+</div>
+
+<!-- 主面板 -->
+<div class="panel" id="main">
+  <div class="ptitle">🚀 穿越到未来</div>
+  <div class="phint">选择你想穿越到「多久以后」。规则：穿越耗时 = 你选的时间（真的要等那么久哦）。</div>
+  <div class="opts">
+    <button class="opt" data-t="5" data-u="seconds">5 秒后</button>
+    <button class="opt" data-t="1" data-u="minutes">1 分钟后</button>
+    <button class="opt" data-t="5" data-u="minutes">5 分钟后</button>
+    <button class="opt" data-t="1" data-u="hours">1 小时后</button>
+    <button class="opt" data-t="1" data-u="days">1 天后</button>
+    <button class="opt custom" onclick="toggleCustom()">⚙️ 自定义</button>
+  </div>
+  <div class="custom-row hidden" id="customRow">
+    <input type="number" id="cval" min="1" max="999999" value="10">
+    <select id="cunit"><option value="seconds">秒</option><option value="minutes" selected>分钟</option><option value="hours">小时</option><option value="days">天</option></select>
+    <button class="go" onclick="startCustom()">开始穿越</button>
+  </div>
+
+  <div class="divider">古 今 往 来</div>
+
+  <div class="ptitle">🕰️ 穿越到过去？</div>
+  <div class="phint">过去藏着遗憾与秘密……但这项功能需要特权。</div>
+  <button class="past-btn" onclick="show('past')">查看「穿越到过去」详情 →</button>
+</div>
+
+<!-- 穿越动画 -->
+<div id="travel">
+  <div class="flash"></div>
+  <div class="scene">
+    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="ring r4"></div><div class="ring r5"></div>
+    <div class="tlabel" id="tlabel">穿越中…</div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-label"><span>⚠️ 时空不稳定</span><span id="pstate">折叠中</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
+    <div class="prog-pct" id="ppct">0%</div>
+  </div>
+  <button class="abort hidden" id="abortBtn" onclick="askAbort()">🚪 中途退出</button>
+</div>
+
+<!-- 成功 -->
+<div class="panel" id="success">
+  <div class="s-ico">🎉</div>
+  <div class="s-title" id="sTitle">穿越成功！</div>
+  <div class="s-detail" id="sDetail"></div>
+  <div class="s-fact" id="sFact">💡 冷知识：你确实等了那么久，所以从某种意义上，你真的穿越了！</div>
+  <button class="s-again" onclick="reset()">再穿越一次</button>
+</div>
+
+<!-- VIP -->
+<div class="panel" id="past">
+  <div style="text-align:center">
+    <span class="vip-badge">👑 PREMIUM</span>
+    <div class="vip-title">穿越到过去 · 特权会员</div>
+    <div class="vip-sub">此功能需开通「时空特权会员」后方可使用</div>
+    <div class="vip-feat">
+      <div>✅ 无限次穿越到任意过去时间点</div>
+      <div>✅ 自定义历史时刻（精确到秒）</div>
+      <div>✅ 改变历史轨迹（效果待观测）</div>
+      <div>✅ 优先客服 & 专属通道</div>
+      <div class="off">❌ 修复人生遗憾（研发中，敬请期待）</div>
+    </div>
+    <div class="plans">
+      <div class="plan hot">
+        <div class="ribbon">🔥 限时特惠</div>
+        <div class="pn">首充体验</div>
+        <div class="pp"><small>¥</small>0.1</div>
+        <div class="pd">半个月 · 新用户专享</div>
+        <button onclick="pay()">立即开通</button>
+      </div>
+      <div class="plan">
+        <div class="pn">连续包月</div>
+        <div class="pp"><small>¥</small>5</div>
+        <div class="pd">每月自动续费</div>
+        <button onclick="pay()">立即开通</button>
+      </div>
+      <div class="plan">
+        <div class="pn">年度尊享</div>
+        <div class="pp"><small>¥</small>50</div>
+        <div class="pd">省 ¥10 · 最划算</div>
+        <button onclick="pay()">立即开通</button>
+      </div>
+    </div>
+    <button class="back" onclick="show('main')">← 返回</button>
+  </div>
+</div>
+
+<!-- 支付 -->
+<div class="panel" id="pay">
+  <div class="pay-title">💳 请加 Young 微信付款</div>
+  <div class="qr">
+    <img src="assets/young-wechat.png" alt="Young微信" onerror="this.parentNode.innerHTML='<div class=\'ph\'>📱 请加 Young 微信付款<br>微信号：搜索 Young</div>'">
+  </div>
+  <div class="pay-note">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
+  <div class="pay-fine">* 本支付为真实有效支付（确信）</div>
+  <button class="back" style="margin-top:16px" onclick="show('past')">← 返回</button>
+</div>
+
+<!-- 警告 -->
+<div class="panel" id="warn">
+  <div class="w-ico">⚠️</div>
+  <h2>警告！</h2>
+  <p>中途退出穿越可能导致以下后果：</p>
+  <ul class="w-list">
+    <li>时空裂缝扩大</li>
+    <li>平行宇宙分裂</li>
+    <li>你变成两个你</li>
+    <li>蝴蝶效应引发第三次世界大战</li>
+  </ul>
+  <div class="w-q">确定要退出吗？</div>
+  <div class="w-acts">
+    <button class="w-y" onclick="doAbort()">确定退出</button>
+    <button class="w-n" onclick="show('travel')">继续穿越</button>
+  </div>
+</div>
+
+<div class="foot">Young's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
+
+<script>
+let timer=null,start=0,dur=0,abortable=false,curT=5,curU='seconds';
+const UNIT={seconds:1000,minutes:60000,hours:3600000,days:86400000};
+const UNIT_CN={seconds:'秒',minutes:'分钟',hours:'小时',days:'天'};
+function fmt(ms){if(ms<1000)return ms+'毫秒';if(ms<60000)return Math.round(ms/1000)+'秒';if(ms<3600000)return Math.round(ms/60000)+'分钟';if(ms<86400000)return Math.round(ms/3600000)+'小时';return Math.round(ms/86400000)+'天';}
+
+function show(id){
+  ['main','travel','success','past','pay','warn'].forEach(p=>document.getElementById(p).classList.remove('on'));
+  if(id==='travel')document.getElementById('travel').style.display='flex';
+  else document.getElementById('travel').style.display='none';
+  document.getElementById(id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function hideAll(){['main','travel','success','past','pay','warn'].forEach(p=>{document.getElementById(p).classList.remove('on');document.getElementById(p).style.display='none';});}
+
+document.querySelectorAll('.opt[data-t]').forEach(b=>b.addEventListener('click',()=>{
+  startTravel(parseInt(b.dataset.t),b.dataset.u);
+}));
+function toggleCustom(){document.getElementById('customRow').classList.toggle('hidden');}
+function startCustom(){
+  const v=parseInt(document.getElementById('cval').value);
+  const u=document.getElementById('cunit').value;
+  if(!v||v<1){alert('请输入有效时间');return;}
+  startTravel(v,u);
+}
+function startTravel(t,u){
+  curT=t;curU=u;dur=t*UNIT[u];start=Date.now();
+  abortable=dur>=30000;
+  hideAll();
+  show('travel');
+  document.getElementById('tlabel').textContent='穿越到 '+t+UNIT_CN[u]+' 后…';
+  document.getElementById('pstate').textContent='折叠中';
+  const fill=document.getElementById('pfill'),pct=document.getElementById('ppct');
+  fill.style.width='0%';pct.textContent='0%';
+  document.getElementById('abortBtn').classList.toggle('hidden',!abortable);
+  if(timer)clearInterval(timer);
+  timer=setInterval(()=>{
+    const el=Date.now()-start, p=Math.min(el/dur*100,100);
+    fill.style.width=p+'%';pct.textContent=Math.round(p)+'%';
+    document.getElementById('pstate').textContent = p<50?'折叠中':(p<90?'穿越中':'重组中');
+    if(p>=100){clearInterval(timer);timer=null;done(t,u);}
+  },50);
+}
+function done(t,u){
+  let msg,det;
+  if(u==='seconds'&&t<=5){msg='恭喜你穿越到 '+t+' 秒后了！';det='你成功穿越了 '+t+' 秒，现在：'+new Date().toLocaleTimeString();}
+  else if(u==='minutes'&&t===1){msg='恭喜你穿越到 1 分钟后了！';det='1 分钟漫长等待 you made it！现在：'+new Date().toLocaleTimeString();}
+  else if(u==='minutes'&&t===5){msg='恭喜你穿越到 5 分钟后了！';det='5 分钟！你居然坚持下来了。现在：'+new Date().toLocaleTimeString();}
+  else if(u==='hours'){msg='恭喜你穿越到 '+t+' 小时后了！';det='你真的等了 '+t+' 个小时，这毅力佩服。现在：'+new Date().toLocaleTimeString();}
+  else if(u==='days'){msg='恭喜你穿越到 '+t+' 天后了！';det=t+' 天后的你，还好吗？现在：'+new Date().toLocaleDateString();}
+  else{msg='恭喜你穿越到 '+fmt(dur)+' 后了！';det='穿越耗时 '+fmt(dur)+'。当前：'+new Date().toLocaleString();}
+  document.getElementById('sTitle').textContent=msg;
+  document.getElementById('sDetail').textContent=det;
+  document.getElementById('sFact').textContent='💡 冷知识：你确实实实在在等了 '+fmt(dur)+'，所以你真的穿越了！';
+  show('success');
+}
+function askAbort(){show('warn');}
+function doAbort(){
+  const el=Date.now()-start;clearInterval(timer);timer=null;
+  document.getElementById('sTitle').textContent='你中途退出了 ⏹';
+  document.getElementById('sDetail').textContent='你只穿越了 '+fmt(el)+'。虽然没到终点，但勇气可嘉！(警告里的后果都没发生，大概吧)';
+  document.getElementById('sFact').textContent='💡 好消息：时空裂缝已自动修复，平行宇宙未分裂，你仍然只有一个你。';
+  show('success');
+}
+function reset(){hideAll();show('main');document.getElementById('customRow').classList.add('hidden');document.getElementById('abortBtn').classList.add('hidden');}
+function pay(){show('pay');}
+</script>
+</body>
+</html>
