@@ -16,7 +16,7 @@ def physics_loop():
         with _lock:
             if sim.running:
                 sim.tick()
-        time.sleep(1/30.0)
+        time.sleep(1/12.0)  # 12fps 足够流畅，避免桌面闪烁
 
 class API:
     def ready(self):
