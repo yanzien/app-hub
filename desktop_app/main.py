@@ -22,9 +22,11 @@ class API:
     def ready(self):
         try:
             n = sim.load()
+            debug = desktop_ctrl.get_debug_log()
+            return {"ok": True, "count": n, "w": sim.W, "h": sim.H, "debug": debug}
         except Exception as e:
-            return {"ok": False, "error": str(e)}
-        return {"ok": True, "count": n, "w": sim.W, "h": sim.H}
+            debug = desktop_ctrl.get_debug_log()
+            return {"ok": False, "error": str(e), "debug": debug}
 
     def start(self, name):
         try:
