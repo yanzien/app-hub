@@ -25,8 +25,8 @@ let containerEl = null;
 // 初始化桌面覆盖层
 function initDesktopOverlay() {
     if (!overlayEl) {
-        overlayEl = document.getElementById('desktop-overlay');
-        containerEl = document.getElementById('desktop-icons-container');
+        overlayEl = document.getElementById('overlay');      // 外层（控制显示/隐藏）
+        containerEl = document.getElementById('desktop-icons-container');  // 图标容器
     }
 }
 
@@ -538,39 +538,4 @@ function resetToolCard(toolId) {
     }
 }
 
-// ========== 浏览器模拟：桌面图标显示 ==========
-function showOverlay() {
-    const overlay = document.getElementById('overlay');
-    if (!overlay) return;
-    overlay.classList.remove('hidden');
-    createDesktopIcons();
-}
-
-function hideOverlay() {
-    const overlay = document.getElementById('overlay');
-    if (overlay) overlay.classList.add('hidden');
-    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-}
-
-function initDesktopOverlay() {
-    overlayEl = document.getElementById('overlay');
-    containerEl = document.getElementById('desktop-icons-container');
-}
-
-function createDesktopIcons() {
-    initDesktopOverlay();
-    if (!containerEl) return;
-    containerEl.innerHTML = '';
-    iconsState = [];
-    DESKTOP_ICONS.forEach((item, index) => {
-        const el = document.createElement('div');
-        el.className = 'dicon';
-        el.innerHTML = `<div class="di">${item.icon}</div><div class="dl">${item.label}</div>`;
-        const baseX = 40 + (index % 8) * 90;
-        const baseY = 40 + Math.floor(index / 8) * 100;
-        el.style.left = baseX + 'px';
-        el.style.top = baseY + 'px';
-        containerEl.appendChild(el);
-        iconsState.push({ el, originX: baseX, originY: baseY, x: baseX, y: baseY, vx: 0, vy: 0 });
-    });
-}
+// ========== 文件结束 ==========
