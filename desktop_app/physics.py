@@ -14,6 +14,7 @@ class DesktopSim:
         self.pos = []         # [(x,y)]
         self.vel = []         # [(vx,vy)]
         self.target = []      # [(tx,ty)] 用于消失器目标
+        self._last_written = []  # 上次写回的位置，避免重复刷新
         self.running = False
         self.W, self.H = desktop_ctrl.screen_size()
 
@@ -30,6 +31,7 @@ class DesktopSim:
             self.load()
         self.effect = effect
         self.running = True
+        self._last_written = []  # 重置，确保首次 tick 一定写入
         n = len(self.pos)
         if effect == "gravity":
             self.vel = [[(random.random()-0.5)*4, 0.0] for _ in range(n)]
@@ -135,5 +137,8 @@ class DesktopSim:
                 if d > 0.5:
                     self.pos[i][0] += dx/d*step
                     self.pos[i][1] += dy/d*step
-        # 写回桌面
-        desktop_ctrl.set_positions([(int(p[0]), int(p[1])) for p in self.pos])
+        # 只在位置真正变化时才写回桌面（避免闪烁）
+        new_pos = [(int(p[0]), int(p[1])) for p in self.pos]
+        if new_pos != self._last_written:
+            desktop_ctrl.set_positions(new_pos)
+            self._last_written = new_pos
