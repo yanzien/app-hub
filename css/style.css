@@ -190,10 +190,11 @@ body{
 /* 浏览器模拟覆盖层 */
 .overlay{position:fixed;inset:0;z-index:99;background:linear-gradient(135deg,#1e293b,#334155);overflow:hidden}
 .overlay.hidden{display:none}
-.dicon{position:absolute;width:74px;text-align:center;user-select:none}
-.dicon .di{font-size:38px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
-.dicon .dl{font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);line-height:1.2}
-.mouse-arrow{position:fixed;z-index:101;font-size:28px;color:#ef4444;pointer-events:none;transition:transform .08s linear;text-shadow:0 0 12px rgba(239,68,68,.6)}
+.desktop-icon{position:absolute;width:74px;text-align:center;user-select:none;transition:transform .15s ease, opacity .3s ease}
+.desktop-icon-icon{font-size:38px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.desktop-icon-label{font-size:11px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);line-height:1.2;margin-top:2px}
+.mouse-arrow{position:fixed;z-index:101;font-size:28px;color:#ef4444;pointer-events:none;transition:transform .08s linear,text-shadow .08s linear;text-shadow:0 0 12px rgba(239,68,68,.6)}
+.mouse-arrow.hidden{display:none}
 
 /* 页脚 */
 .foot{position:relative;z-index:1;text-align:center;padding:30px 20px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
