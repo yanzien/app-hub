@@ -17,17 +17,21 @@ function closeModal(id){const m=document.getElementById(id);if(m){m.classList.ad
 function closeDesktopOps2(id){closeModal(id);stopAllEffects();}
 
 // ---- 桌面操作弹窗（浏览器模拟） ----
-const DO_TOOLS=[
-  {id:'gravity',icon:'🌍',name:'桌面重力器',desc:'模拟重力，图标掉落',start:startGravity,stop:stopGravity},
-  {id:'zeroG',icon:'🛸',name:'桌面失重器',desc:'太空失重，图标飘浮',start:startZeroG,stop:stopZeroG},
-  {id:'hide',icon:'🙈',name:'图标消失器',desc:'躲到窗口后面',start:startHideIcons,stop:stopHideIcons},
-  {id:'fight',icon:'🥊',name:'图标打架器',desc:'互相追逐碰撞',start:startFight,stop:stopFight},
-  {id:'mouse',icon:'👆',name:'鼠标寻找器',desc:'箭头指向鼠标',start:startMouseFinder,stop:stopMouseFinder},
-];
+// 懒初始化：避免引用尚未加载的函数（desktop-ops.js 在本文件之后加载）
+function _getDoTools(){
+  return [
+    {id:'gravity',icon:'🌍',name:'桌面重力器',desc:'模拟重力，图标掉落',start:startGravity||(()=>{}),stop:stopGravity||(()=>{})},
+    {id:'zeroG',icon:'🛸',name:'桌面失重器',desc:'太空失重，图标飘浮',start:startZeroG||(()=>{}),stop:stopZeroG||(()=>{})},
+    {id:'hide',icon:'🙈',name:'图标消失器',desc:'躲到窗口后面',start:startHideIcons||(()=>{}),stop:stopHideIcons||(()=>{})},
+    {id:'fight',icon:'🥊',name:'图标打架器',desc:'互相追逐碰撞',start:startFight||(()=>{}),stop:stopFight||(()=>{})},
+    {id:'mouse',icon:'👆',name:'鼠标寻找器',desc:'箭头指向鼠标',start:startMouseFinder||(()=>{}),stop:stopMouseFinder||(()=>{})},
+  ];
+}
 function openDesktopOps(){
   const grid=document.getElementById('do-grid');
   if(grid && !grid.children.length){
-    grid.innerHTML=DO_TOOLS.map(t=>`
+    const tools=_getDoTools();
+    grid.innerHTML=tools.map(t=>`
       <div class="do-tool" id="dt-${t.id}">
         <div class="ti">${t.icon}</div>
         <div class="tn">${t.name}</div>
@@ -39,10 +43,14 @@ function openDesktopOps(){
   openModal('do-modal');
 }
 function runDotool(id,start){
-  const tool=DO_TOOLS.find(t=>t.id===id);
+  const tools=_getDoTools();
+  const tool=tools.find(t=>t.id===id);
   const card=document.getElementById('dt-'+id);
-  if(start){tool.start();card.classList.add('run');card.querySelector('.start').classList.add('hidden');card.querySelector('.stop').classList.remove('hidden');}
-  else{tool.stop();card.classList.remove('run');card.querySelector('.start').classList.remove('hidden');card.querySelector('.stop').classList.add('hidden');}
+  if(!tool||!card) return;
+  try{
+    if(start){tool.start();card.classList.add('run');card.querySelector('.start').classList.add('hidden');card.querySelector('.stop').classList.remove('hidden');}
+    else{tool.stop();card.classList.remove('run');card.querySelector('.start').classList.remove('hidden');card.querySelector('.stop').classList.add('hidden');}
+  }catch(e){console.error('Tool error:',e);}
 }
 
 // ---- 网页内嵌 ----
@@ -57,7 +65,6 @@ function closeWeb(){closeModal('web-modal');document.getElementById('web-frame')
 // ---- EXE 下载 ----
 function scrollToExe(){document.getElementById('desktop-exe').scrollIntoView({behavior:'smooth'});}
 function downloadExe(){
-  // 指向构建产物（部署后在 release 或同仓库）
   const url='assets/YoungDesktopController.exe';
   const a=document.createElement('a');a.href=url;a.download='YoungDesktopController.exe';a.click();
   setTimeout(()=>alert('若未开始下载，请手动前往 GitHub Releases 获取最新版。'),500);
