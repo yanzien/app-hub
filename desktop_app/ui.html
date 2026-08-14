@@ -88,9 +88,15 @@ window.addEventListener('pywebviewready',async()=>{
   render();
   const r=await window.pywebview.api.ready();
   if(r&&r.ok){
-    setStatus('已连接桌面 · 检测到 '+r.count+' 个图标 · 分辨率 '+r.w+'×'+r.h,false);
+    if(r.count>0){
+      setStatus('已连接桌面 · 检测到 '+r.count+' 个图标 · 分辨率 '+r.w+'×'+r.h,false);
+    }else{
+      setStatus('⚠️ 检测到 0 个图标（请确认桌面有图标且未勾选「自动排列图标」）',true);
+      if(r.debug) console.log('DEBUG:',r.debug);
+    }
   }else{
-    setStatus('⚠️ 未找到桌面图标：'+(r&&r.error||'')+'（请确认桌面有图标且未勾选自动排列）',true);
+    setStatus('⚠️ 未找到桌面图标：'+(r&&r.error||'未知错误'),true);
+    if(r&&r.debug) console.log('DEBUG:',r.debug);
   }
 });
 </script>
