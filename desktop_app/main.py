@@ -78,4 +78,4 @@ if __name__ == "__main__":
         on_top=True,
     )
     window.events.closed += on_closed
-    webview.start(on_top=True)
+    webview.start()
