@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · yanzien's App Hub 部署管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+  .admin-wrap { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+  .admin-head { text-align: center; margin-bottom: 36px; }
+  .admin-head h1 { font-size: 28px; margin-bottom: 8px; }
+  .admin-head h1 span { background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .admin-head p { color: #94a3b8; font-size: 14px; }
+
+  .card { background: rgba(30,41,59,.7); border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+  .card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .emoji { font-size: 20px; }
+
+  .form-row { margin-bottom: 16px; }
+  .form-row label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; }
+  .form-row input, .form-row select, .form-row textarea {
+    width: 100%; padding: 10px 14px; border: 1px solid #475569; border-radius: 10px;
+    background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: inherit;
+    transition: border-color .2s; box-sizing: border-box;
+  }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+    outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.15);
+  }
+  .form-row textarea { resize: vertical; min-height: 80px; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px; }
+  .form-row .hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: .2s; font-family: inherit; }
+  .btn-primary { background: linear-gradient(135deg,#3b82f6,#6366f1); color: #fff; }
+  .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn-danger { background: linear-gradient(135deg,#ef4444,#dc2626); color: #fff; }
+  .btn-danger:hover { opacity: .9; }
+  .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+  .btn-ghost:hover { background: #1e293b; color: #e2e8f0; }
+
+  /* 日志区 */
+  .log-area { background: #020617; border: 1px solid #1e293b; border-radius: 10px; padding: 16px; max-height: 360px; overflow-y: auto; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px; line-height: 1.6; }
+  .log-area .ok { color: #4ade80; }
+  .log-area .err { color: #f87171; }
+  .log-area .info { color: #60a5fa; }
+  .log-area .warn { color: #fbbf24; }
+  .log-area .dim { color: #475569; }
+
+  /* 状态指示 */
+  .status-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 12px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
+  .status-dot.connected { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,.5); }
+  .status-dot.error { background: #f87171; }
+  .status-dot.working { background: #fbbf24; animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* 文件列表 */
+  .file-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
+  .file-list li { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #1e293b; }
+  .file-list li:last-child { border-bottom: none; }
+  .file-list li .fname { color: #e2e8f0; }
+  .file-list li .fsize { color: #64748b; font-size: 11px; }
+
+  /* 进度条 */
+  .progress-wrap { margin-top: 16px; display: none; }
+  .progress-wrap.active { display: block; }
+  .progress-bar { height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,#3b82f6,#a78bfa); width: 0%; transition: width .3s; border-radius: 3px; }
+  .progress-text { font-size: 12px; color: #94a3b8; margin-top: 6px; text-align: center; }
+
+  /* 两栏布局 */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .back-link { display: inline-block; margin-bottom: 20px; color: #60a5fa; text-decoration: none; font-size: 13px; }
+  .back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="admin-wrap">
+  <a class="back-link" href="index.html">← 返回首页</a>
+
+  <div class="admin-head">
+    <h1><span>⚙️ Admin</span> 部署管理中心</h1>
+    <p>配置 GitHub 仓库与 PAT，一键将修改部署到 GitHub Pages</p>
+  </div>
+
+  <!-- 连接配置 -->
+  <div class="card">
+    <h3><span class="emoji">🔗</span> GitHub 连接配置</h3>
+    <div class="grid2">
+      <div class="form-row">
+        <label>仓库地址（owner/repo）</label>
+        <input type="text" id="inp-repo" placeholder="yanzien/app-hub" value="yanzien/app-hub">
+        <div class="hint">格式：用户名/仓库名</div>
+      </div>
+      <div class="form-row">
+        <label>Personal Access Token (PAT)</label>
+        <input type="password" id="inp-token" placeholder="ghp_xxxxxxxxxxxx">
+        <div class="hint">需要 repo 权限 · 仅用于部署，不会上传至任何地方</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="testConnection()">🔍 测试连接</button>
+      <button class="btn btn-ghost" onclick="loadRemoteFiles()">📂 拉取远程文件列表</button>
+    </div>
+    <div class="status-bar" id="conn-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">未连接</span>
+    </div>
+  </div>
+
+  <!-- 部署操作 -->
+  <div class="card">
+    <h3><span class="emoji">🚀</span> 一键部署</h3>
+    <p style="font-size:13px;color:#94a3b8;margin-bottom:12px">
+      将当前项目文件上传到 GitHub 仓库的 main 分支。支持增量更新（仅上传变更文件）。
+    </p>
+    <div class="form-row">
+      <label>要部署的文件（每行一个路径，留空则自动扫描）</label>
+      <textarea id="inp-files" placeholder="自动扫描项目目录...&#10;index.html&#10;css/style.css&#10;js/app.js&#10;..."></textarea>
+      <div class="hint">留空 = 自动扫描以下文件：*.html, *.css, *.js, assets/*</div>
+    </div>
+    <div class="form-row">
+      <label>提交信息</label>
+      <input type="text" id="inp-msg" placeholder="update: 部署更新" value="update: 部署更新">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-deploy" onclick="startDeploy()">🚀 开始部署</button>
+      <button class="btn btn-ghost" onclick="clearLog()">🗑️ 清空日志</button>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">准备中...</div>
+    </div>
+  </div>
+
+  <!-- 日志 -->
+  <div class="card">
+    <h3><span class="emoji">📋</span> 操作日志</h3>
+    <div class="log-area" id="log-area">
+      <div class="dim">[系统] Admin 面板已加载，等待操作...</div>
+    </div>
+  </div>
+
+  <!-- 远程文件 -->
+  <div class="card">
+    <h3><span class="emoji">☁️</span> 远程仓库文件</h3>
+    <ul class="file-list" id="remote-file-list">
+      <li><span class="fname dim">点击「拉取远程文件列表」加载</span></li>
+    </ul>
+  </div>
+
+  <footer style="text-align:center;padding:20px;color:#47556b;font-size:12px">
+    yanzien's App Hub · Admin Panel · PAT 仅在浏览器本地使用，不会传输至第三方服务器
+  </footer>
+</div>
+
+<script>
+// ========== Admin 部署管理 ==========
+const API = 'https://api.github.com';
+const logEl = document.getElementById('log-area');
+
+function log(msg, cls='') {
+  const d = document.createElement('div');
+  if (cls) d.className = cls;
+  const t = new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  d.textContent = `[${t}] ${msg}`;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearLog() { logEl.innerHTML = ''; }
+
+function setStatus(text, state) {
+  document.getElementById('status-text').textContent = text;
+  const dot = document.getElementById('status-dot');
+  dot.className = 'status-dot ' + (state || '');
+}
+
+function getRepo() {
+  const v = document.getElementById('inp-repo').value.trim();
+  if (!v.includes('/')) { alert('请输入正确的仓库格式：owner/repo'); return null; }
+  return v;
+}
+function getToken() {
+  const t = document.getElementById('inp-token').value.trim();
+  if (!t) { alert('请输入 PAT'); return null; }
+  return t;
+}
+
+// ---- 测试连接 ----
+async function testConnection() {
+  const repo = getRepo(), token = getToken();
+  if (!repo || !token) return;
+
+  setStatus('测试连接中...', 'working');
+  log('正在测试 GitHub 连接...', 'info');
+
+  try {
+    const r = await fetch(`${API}/repos/${repo}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      setStatus(`已连接 · ${data.full_name} ⭐${data.stargazers_count}`, 'connected');
+      log(`✅ 连接成功！仓库：${data.full_name} | 描述：${data.description || '无'} | 默认分支：${data.default_branch}`, 'ok');
+    } else {
+      const e = await r.json().catch(() => ({}));
+      throw new Error(e.message || `HTTP ${r.status}`);
+    }
+  } catch (err) {
+    setStatus(`连接失败: ${err.message}`, 'error');
+    log(`❌ 连接失败: ${err.message}`, 'err');
+  }
+}
+
+// ---- 拉取远程文件 ----
+async function loadRemoteFiles() {
+  const repo = getRepo(), token = getToken();
+  if (!repo || !token) return;
+
+  log('正在拉取远程文件列表...', 'info');
+  const ul = document.getElementById('remote-file-list');
+  ul.innerHTML = '<li><span class="fname info">加载中...</span></li>';
+
+  try {
+    const r = await fetch(`${API}/repos/${repo}/contents/`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const files = await r.json();
+    ul.innerHTML = '';
+    // 递归获取子目录
+    const allFiles = [];
+    async function walk(items, prefix='') {
+      for (const f of items) {
+        const path = prefix ? `${prefix}/${f.name}` : f.name;
+        if (f.type === 'dir') {
+          const sr = await fetch(`${API}/repos/${repo}/contents/${path}`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+          });
+          if (sr.ok) await walk(await sr.json(), path);
+        } else {
+          allFiles.push({ name: path, size: f.size, sha: f.sha });
+        }
+      }
+    }
+    await walk(files);
+    allFiles.sort((a,b) => a.name.localeCompare(b.name));
+    allFiles.forEach(f => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="fname">${f.name}</span><span class="fsize">${formatSize(f.size)}</span>`;
+      ul.appendChild(li);
+    });
+    log(`✅ 远程文件列表加载完成，共 ${allFiles.length} 个文件`, 'ok');
+  } catch (err) {
+    ul.innerHTML = '<li><span class="fname err">加载失败</span></li>';
+    log(`❌ 加载失败: ${err.message}`, 'err');
+  }
+}
+
+function formatSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ---- 获取要部署的文件列表 ----
+async function getDeployFileList() {
+  const customText = document.getElementById('inp-files').value.trim();
+  if (customText) {
+    return customText.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+  // 自动扫描：尝试从同源获取文件列表
+  try {
+    const r = await fetch('./deploy-manifest.txt');
+    if (r.ok) {
+      const txt = await r.text();
+      return txt.split('\n').map(s => s.trim()).filter(Boolean);
+    }
+  } catch(e) {}
+  // 回退到默认列表
+  return [
+    'index.html', 'time-machine.html',
+    'css/style.css',
+    'js/app.js', 'js/desktop-ops.js', 'js/time-machine.js', 'js/web-sync.js',
+    'assets/young-wechat.png', 'assets/YoungDesktopController.exe'
+  ];
+}
+
+// ---- Base64 编码文件内容 ----
+async function fileToBase64(path) {
+  // 尝试 fetch 同源文件
+  try {
+    const r = await fetch(path);
+    if (!r.ok) return null;
+    const buf = await r.arrayBuffer();
+    // 转为 base64
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    for (const b of bytes) bin += String.fromCharCode(b);
+    return btoa(bin);
+  } catch(e) {
+    return null;
+  }
+}
+
+// ---- 部署 ----
+async function startDeploy() {
+  const repo = getRepo(), token = getToken();
+  if (!repo || !token) return;
+
+  const btn = document.getElementById('btn-deploy');
+  btn.disabled = true;
+  const pw = document.getElementById('progress-wrap');
+  pw.classList.add('active');
+  const fill = document.getElementById('progress-fill');
+  const ptxt = document.getElementById('progress-text');
+
+  log('========== 开始部署 ==========', 'info');
+  setStatus('部署中...', 'working');
+
+  try {
+    // 1. 获取文件列表
+    ptxt.textContent = '正在获取文件列表...';
+    const files = await getDeployFileList();
+    log(`待部署 ${files.length} 个文件: ${files.join(', ')}`, 'info');
+
+    // 2. 获取当前 main 分支 SHA
+    ptxt.textContent = '正在获取分支信息...';
+    fill.style.width = '5%';
+
+    let branchSha;
+    try {
+      const br = await fetch(`${API}/repos/${repo}/branches/main`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+      });
+      if (!br.ok) throw new Error(`无法获取分支: HTTP ${br.status}`);
+      const bd = await br.json();
+      branchSha = bd.commit.sha;
+      log(`main 分支 SHA: ${branchSha.substring(0,8)}...`, 'ok');
+    } catch(e) {
+      log(`⚠️ 获取分支失败: ${e.message}，尝试使用空仓库模式`, 'warn');
+      branchSha = null;
+    }
+
+    // 3. 逐个构建 blob + tree
+    ptxt.textContent = '正在编码文件...';
+    const treeEntries = [];
+    let successCount = 0, failCount = 0;
+
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      ptxt.textContent = `正在处理: ${f} (${i+1}/${files.length})`;
+      fill.style.width = `${5 + (i/files.length)*40}%`;
+
+      log(`[${i+1}/${files.length}] 处理: ${f}`, 'info');
+
+      const b64 = await fileToBase64(f);
+      if (b64 === null) {
+        log(`  ⚠️ 无法读取文件: ${f}（可能不存在于当前站点）`, 'warn');
+        failCount++;
+        continue;
+      }
+
+      // 创建 blob
+      try {
+        const blobR = await fetch(`${API}/repos/${repo}/git/blobs`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+          body: JSON.stringify({ content: b64, encoding: 'base64' })
+        });
+        if (!blobR.ok) throw new Error(`Blob 创建失败: HTTP ${blobR.status}`);
+        const blobData = await blobR.json();
+
+        treeEntries.push({
+          path: f,
+          mode: '1006',
+          type: 'blob',
+          sha: blobData.sha
+        });
+
+        log(`  ✅ ${f} → blob ${blobData.sha.substring(0,8)} (${Math.round(b64.length*3/4)} bytes)`, 'ok');
+        successCount++;
+      } catch(e) {
+        log(`  ❌ ${f}: ${e.message}`, 'err');
+        failCount++;
+      }
+
+      // 小延迟避免速率限制
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    if (treeEntries.length === 0) {
+      throw new Error('没有成功处理的文件');
+    }
+
+    // 4. 创建 tree
+    ptxt.textContent = '正在创建 Git Tree...';
+    fill.style.width = '50%';
+    log('正在创建 Git Tree...', 'info');
+
+    const treeR = await fetch(`${API}/repos/${repo}/git/trees`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ tree: treeEntries, base_tree: branchSha || undefined })
+    });
+    if (!treeR.ok) {
+      const errBody = await treeR.json().catch(() => ({}));
+      throw new Error(`Tree 创建失败: HTTP ${treeR.status} - ${errBody.message || ''}`);
+    }
+    const treeData = await treeR.json();
+    log(`✅ Tree 创建成功: ${treeData.sha.substring(0,8)} (${treeData.tree.length} 个条目)`, 'ok');
+
+    // 5. 创建 commit
+    ptxt.textContent = '正在创建 Commit...';
+    fill.style.width = '75%';
+    const msg = document.getElementById('inp-msg').value.trim() || 'update: 部署更新';
+
+    const commitR = await fetch(`${API}/repos/${repo}/git/commits`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({
+        message: msg,
+        tree: treeData.sha,
+        parents: branchSha ? [branchSha] : []
+      })
+    });
+    if (!commitR.ok) {
+      const errBody = await commitR.json().catch(() => ({}));
+      throw new Error(`Commit 失败: HTTP ${commitR.status} - ${errBody.message || ''}`);
+    }
+    const commitData = await commitR.log();
+    log(`✅ Commit 创建成功: ${commitData.sha.substring(0,8)}`, 'ok');
+
+    // 6. 推送引用
+    ptxt.textContent = '正在推送到 main 分支...';
+    fill.style.width = '90%';
+
+    const refR = await fetch(`${API}/repos/${repo}/git/refs/heads/main`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ sha: commitData.sha, force: true })
+    });
+
+    if (refR.ok) {
+      fill.style.width = '100%';
+      ptxt.textContent = '部署完成 ✅';
+      setStatus('部署完成', 'connected');
+      log(`\n========== 部署成功 ==========`, 'ok');
+      log(`✅ 成功: ${successCount} 个文件 | 失败: ${failCount} 个`, 'ok');
+      log(`🔗 https://github.com/${repo} | 🌐 https://${repo.split('/')[0]}.github.io/${repo.split('/')[1]}/`, 'ok');
+      log(`Commit: ${commitData.sha}`, 'info');
+      log(`GitHub Pages 通常在 1-2 分钟内生效`, 'info');
+    } else {
+      // ref 可能还不存在（新仓库首次推送）
+      const refErr = await refR.json().catch(() => ({}));
+      if (refErr.message && refErr.message.includes('not exist')) {
+        log('main 引用不存在，尝试创建...', 'warn');
+        const createRefR = await fetch(`${API}/repos/${repo}/git/refs`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+          body: JSON.stringify({ ref: 'refs/heads/main', sha: commitData.sha })
+        });
+        if (createRefR.ok) {
+          fill.style.width = '100%';
+          ptxt.textContent = '部署完成 ✅（首次推送）';
+          setStatus('部署完成', 'connected');
+          log(`✅ 首次推送成功！main 分支已创建`, 'ok');
+        } else {
+          throw new Error(`创建 ref 失败: ${await createRefR.text()}`);
+        }
+      } else {
+        throw new Error(`推送 ref 失败: ${refErr.message || HTTP ${refR.status}`);
+      }
+    }
+
+  } catch(err) {
+    fill.style.width = '100%';
+    fill.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
+    ptxt.textContent = `❌ 部署失败: ${err.message}`;
+    setStatus('部署失败', 'error');
+    log(`\n========== 部署失败 ==========`, 'err');
+    log(`❌ 错误: ${err.message}`, 'err');
+    log('提示：检查 PAT 是否有 repo 权限、仓库名是否正确', 'warn');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// 页面加载时从 localStorage 恢复配置
+window.addEventListener('DOMContentLoaded', () => {
+  const savedRepo = localStorage.getItem('admin_repo');
+  const savedToken = localStorage.getItem('admin_token');
+  if (savedRepo) document.getElementById('inp-repo').value = savedRepo;
+  if (savedToken) document.getElementById('inp-token').value = savedToken;
+
+  // 保存配置
+  document.getElementById('inp-repo').addEventListener('change', () => {
+    localStorage.setItem('admin_repo', document.getElementById('inp-repo').value);
+  });
+  document.getElementById('inp-token').addEventListener('change', () => {
+    localStorage.setItem('admin_token', document.getElementById('inp-token').value);
+  });
+});
+</script>
+</body>
+</html>
