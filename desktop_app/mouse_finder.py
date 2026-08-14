@@ -1,82 +1,20 @@
 # mouse_finder.py
-# 真实跟随鼠标的箭头覆盖窗（pywin32 原生透明置顶窗，无需 tkinter）
-# 用 GDI 多边形绘制箭头（不依赖 emoji 字体渲染）
-import win32gui, win32con, win32api
+# 真实跟随鼠标的箭头覆盖窗（pywin32 原生透明置顶窗）
+# V2：用纯 Unicode 字符 + 简化窗口模型，确保可见
+import win32gui, win32con, win32api, win32process
 import ctypes
 from ctypes import wintypes
 import threading
 import time
+import os
 
 user32 = ctypes.windll.user32
-gdi32 = ctypes.windll.gdi32
 
-# 箭头窗口类名
-WC_ARROW = "MouseFinderArrow_2026"
-
-def _register_class():
-    """注册窗口类（仅一次）"""
-    wc = wintypes.WNDCLASSW()
-    wc.lpfnWndProc = win32gui.WndProcType(_wnd_proc)
-    wc.hInstance = win32api.GetModuleHandle(None)
-    wc.lpszClassName = WC_ARROW
-    wc.hbrBackground = None  # 透明背景
-    try:
-        win32gui.RegisterClass(wc)
-    except Exception:
-        pass  # 已注册则忽略
-
-def _draw_arrow(hdc, w, h):
-    """用 GDI 绘制一个红色箭头（多边形 + 线条，不依赖字体）"""
-    # 红色画笔 + 红色刷子
-    pen = gdi32.CreatePen(win32con.PS_SOLID, 3, 0x0000FF)  # 红色 RGB
-    brush = gdi32.CreateSolidBrush(0x0000FF)
-    old_pen = gdi32.SelectObject(hdc, pen)
-    old_brush = gdi32.SelectObject(hdc, brush)
-
-    # 设置混合模式（透明背景）
-    gdi32.SetBkMode(hdc, win32con.TRANSPARENT)
-
-    cx, cy = w // 2, h // 2
-
-    # 箭头三角形（指向上方偏右）
-    points = (
-        wintypes.POINT(cx, 4),           # 顶点
-        wintypes.POINT(4, h - 6),        # 左下
-        wintypes.POINT(cx + 4, h - 16),   # 内凹底中
-        wintypes.POINT(w - 4, h - 6),     # 右下
-    )
-    gdi32.Polygon(hdc, points, len(points))
-
-    # 箭头杆子（从三角形底部向下延伸一小段）
-    gdi32.MoveToEx(hdc, cx, h - 14, None)
-    gdi32.LineTo(hdc, cx, h - 2)
-
-    # 清理
-    gdi32.SelectObject(hdc, old_pen)
-    gdi32.SelectObject(hdc, old_brush)
-    gdi32.DeleteObject(pen)
-    gdi32.DeleteObject(brush)
-
-
-def _wnd_proc(hwnd, msg, wParam, lParam):
-    """窗口过程"""
-    if msg == win32con.WM_DESTROY:
-        win32gui.PostQuitMessage(0)
-        return 0
-    elif msg == win32con.WM_PAINT:
-        hdc, ps = win32gui.BeginPaint(hwnd)
-        try:
-            rect = wintypes.RECT()
-            user32.GetClientRect(hwnd, ctypes.byref(rect))
-            w = rect.right - rect.left
-            h = rect.bottom - rect.top
-            _draw_arrow(hdc, w, h)
-        finally:
-            win32gui.EndPaint(hwnd, ps)
-        return 0
-    elif msg == win32con.WM_ERASEBKGND:
-        return 1  # 不擦除背景（保持透明）
-    return win32gui.DefWindowProc(hwnd, msg, wParam, lParam)
+# 用一个绝对可靠的 Unicode 箭头字符
+ARROW_CHAR = "\u25B2"  # ▲ 实心向上三角，所有字体都有
+ARROW_FONT_SIZE = 36
+WIN_W = 48
+WIN_H = 52
 
 
 class MouseFinder:
@@ -84,6 +22,7 @@ class MouseFinder:
         self.hwnd = None
         self.running = False
         self.thread = None
+        self._font = None
 
     def start(self):
         if self.running:
@@ -93,39 +32,64 @@ class MouseFinder:
         self.thread.start()
 
     def _run(self):
-        _register_class()
-        style = (win32con.WS_POPUP |
-                 win32con.WS_VISIBLE |
-                 win32con.WS_DISABLED)  # 不接收鼠标事件
-        exstyle = (win32con.WS_EX_LAYERED |
-                   win32con.WS_EX_TOOLWINDOW |   # 不在任务栏显示
-                   win32con.WS_EX_TOPMOST |       # 置顶
-                   win32con.WS_EX_TRANSPARENT)    # 鼠标穿透
+        # 注册简单窗口类
+        wc_name = "MouseFinderV2_" + str(os.getpid())
+        wc = wintypes.WNDCLASSW()
+        wc.lpfnWndProc = win32gui.WndProcType(self._wnd_proc)
+        wc.hInstance = win32api.GetModuleHandle(None)
+        wc.lpszClassName = wc_name
+        wc.hbrBackground = win32gui.GetStockObject(win32con.BLACK_BRUSH)
+        try:
+            win32gui.RegisterClass(wc)
+        except Exception:
+            pass
 
-        # 创建 48x48 透明窗口
+        # 创建置顶透明窗口
+        style = win32con.WS_POPUP | win32con.WS_VISIBLE
+        exstyle = (win32con.WS_EX_LAYERED |
+                   win32con.WS_EX_TOOLWINDOW |
+                   win32con.WS_EX_TOPMOST |
+                   win32con.WS_EX_NOACTIVATE)
+
         self.hwnd = win32gui.CreateWindowEx(
-            exstyle, WC_ARROW, "",
-            style, 0, 0, 48, 48,
+            exstyle, wc_name, "",
+            style, 0, 0, WIN_W, WIN_H,
             0, 0, win32api.GetModuleHandle(None), None
         )
 
-        # 设透明色（黑色=透明）
-        user32.SetLayeredWindowAttributes(self.hwnd, 0x000000, 255, win32con.LWA_COLORKEY)
+        # 黑色全透明
+        user32.SetLayeredWindowAttributes(
+            self.hwnd, 0x000000, 255, win32con.LWA_COLORKEY
+        )
 
-        # 显示
+        # 创建字体
+        self._font = win32gui.CreateFont(
+            ARROW_FONT_SIZE, 0, 0, 0, win32con.FW_BOLD,
+            False, False, False, DEFAULT_CHARSET,
+            OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, VARIABLE_PITCH | FF_SWISS,
+            "Segoe UI Symbol"
+        )
+
         win32gui.ShowWindow(self.hwnd, win32con.SW_SHOW)
 
         # 跟随循环
         while self.running:
             try:
                 x, y = win32api.GetCursorPos()
-                # 窗口放在鼠标右下方
-                win32gui.SetWindowPos(self.hwnd, win32con.HWND_TOPMOST,
-                                      x + 28, y + 28, 48, 48,
-                                      win32con.SWP_NOACTIVATE)
+                # 放在鼠标右下方，稍微偏移
+                tx = x + 24
+                ty = y + 28
+                win32gui.SetWindowPos(
+                    self.hwnd, win32con.HWND_TOPMOST,
+                    tx, ty, WIN_W, WIN_H,
+                    win32con.SWP_NOACTIVATE | win32con.SWP_NOZORDER
+                )
+                # 强制重绘（确保箭头始终可见）
+                win32gui.InvalidateRect(self.hwnd, None, True)
             except Exception:
                 pass
-            time.sleep(0.02)  # ~50fps
+            time.sleep(0.03)  # ~33fps
 
         # 清理
         if self.hwnd:
@@ -134,7 +98,58 @@ class MouseFinder:
             except Exception:
                 pass
             self.hwnd = None
+        if self._font:
+            try:
+                win32gui.DeleteObject(self._font)
+            except Exception:
+                pass
+
+    def _wnd_proc(self, hwnd, msg, wParam, lParam):
+        if msg == win32con.WM_PAINT:
+            hdc, ps = win32gui.BeginPaint(hwnd)
+            try:
+                # 设置背景模式为透明
+                win32gui.SetBkMode(hdc, win32con.TRANSPARENT)
+                # 设置红色文字颜色
+                win32gui.SetTextColor(hdc, 0xFF0000)  # 红色 BGR
+
+                # 选入字体
+                if self._font:
+                    old_font = win32gui.SelectObject(hdc, self._font)
+
+                # 绘制箭头文字（居中）
+                rect = (4, 0, WIN_W - 4, WIN_H)
+                win32gui.DrawText(
+                    hdc, ARROW_CHAR, -1, rect,
+                    win32con.DT_CENTER | win32con.DT_VCENTER | win32con.DT_SINGLELINE
+                )
+
+                # 恢复字体
+                if self._font:
+                    win32gui.SelectObject(hdc, old_font)
+            finally:
+                win32gui.EndPaint(hwnd, ps)
+            return 0
+
+        elif msg == win32con.WM_ERASEBKGND:
+            # 用黑色填充背景（会被设为透明色）
+            hdc = wParam
+            rect = wintypes.RECT()
+            user32.GetClientRect(hwnd, ctypes.byref(rect))
+            brush = win32gui.GetStockObject(win32con.BLACK_BRUSH)
+            win32gui.FillRect(hdc, ctypes.byref(rect), brush)
+            return 1  # 已处理，不再默认擦除
+
+        return win32gui.DefWindowProc(hwnd, msg, wParam, lParam)
 
     def stop(self):
         self.running = False
-        # 线程会在下次循环检查时退出并清理窗口
+
+
+# 常量
+DEFAULT_CHARSET = 1
+OUT_OUTLINE_PRECIS = 8
+CLIP_DEFAULT_PRECIS = 0
+CLEARTYPE_QUALITY = 5
+VARIABLE_PITCH = 2
+FF_SWISS = 36
