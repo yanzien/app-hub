@@ -42,7 +42,7 @@ def _wnd_proc(hwnd, msg, wParam, lParam):
             font = win32gui.CreateFontIndirect(hfont)
             old = win32gui.SelectObject(hdc, font)
             win32gui.SetTextColor(hdc, 0xFF3B3B)  # 红色
-            win32gui.TextOut(hdc, 4, 0, "\u{1F446}", 2)  # 👆
+            win32gui.TextOut(hdc, 4, 0, "\U0001f446", 2)  # 👆
             win32gui.SelectObject(hdc, old)
             win32gui.DeleteObject(font)
         finally:
