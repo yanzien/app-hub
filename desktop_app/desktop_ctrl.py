@@ -85,7 +85,7 @@ def _find_listview_v2():
         try:
             cls = win32gui.GetClassName(w)
             if cls == "SysListView32":
-                n = user32.SendMessageW(lv, LVM_GETITEMCOUNT, 0, 0)
+                n = user32.SendMessageW(w, LVM_GETITEMCOUNT, 0, 0)
                 # 检查父窗口链是否像桌面
                 parent = win32gui.GetParent(w)
                 grandparent = win32gui.GetParent(parent) if parent else 0
@@ -182,8 +182,7 @@ def set_positions(arr):
     for i, (x, y) in enumerate(arr):
         p = POINT(int(x), int(y))
         user32.SendMessageW(lv, LVM_SETITEMPOSITION32, i, ctypes.byref(p))
-    # 触发重绘
-    user32.InvalidateRect(lv, None, True)
+    # 不再强制 InvalidateRect — 让 Windows 自然重绘，避免闪烁
 
 
 def get_labels():
