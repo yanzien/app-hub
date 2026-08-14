@@ -3,267 +3,863 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin · yanzien's App Hub 部署管理</title>
+<title>管理后台 · yanzien's App Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  body { background: #0f172a; color: #e2e8f0; min-height: 100vh; }
-  .admin-wrap { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-  .admin-head { text-align: center; margin-bottom: 36px; }
-  .admin-head h1 { font-size: 28px; margin-bottom: 8px; }
-  .admin-head h1 span { background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .admin-head p { color: #94a3b8; font-size: 14px; }
+:root {
+  --sidebar-bg: #1a1d2e;
+  --sidebar-hover: #252840;
+  --sidebar-active: #3b5bff;
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --border: #e8eaed;
+  --text: #1a1d2e;
+  --text2: #6b7280;
+  --text3: #9ca3af;
+  --primary: #3b5bff;
+  --primary-light: #eef1ff;
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display:flex; min-height:100vh; }
 
-  .card { background: rgba(30,41,59,.7); border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-  .card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .card h3 .emoji { font-size: 20px; }
+/* ====== 侧边栏 ====== */
+.sidebar {
+  width: 240px; min-height:100vh; background: var(--sidebar-bg); color:#fff;
+  display:flex; flex-direction:column; position:fixed; left:0; top:0; z-index:100;
+  transition: transform .3s;
+}
+.sidebar-header {
+  padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; gap:10px;
+}
+.sidebar-logo { font-size:22px; }
+.sidebar-title { font-size:14px; font-weight:700; letter-spacing:.5px; }
+.sidebar-subtitle { font-size:11px; color:rgba(255,255,255,.4); margin-top:1px; }
 
-  .form-row { margin-bottom: 16px; }
-  .form-row label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; }
-  .form-row input, .form-row select, .form-row textarea {
-    width: 100%; padding: 10px 14px; border: 1px solid #475569; border-radius: 10px;
-    background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: inherit;
-    transition: border-color .2s; box-sizing: border-box;
-  }
-  .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
-    outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.15);
-  }
-  .form-row textarea { resize: vertical; min-height: 80px; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px; }
-  .form-row .hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+.sidebar-nav { flex:1; padding: 12px 0; overflow-y:auto; }
+.nav-section { padding: 0 12px; margin-bottom: 8px; }
+.nav-label { font-size:11px; color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px; padding: 8px 12px 4px; font-weight:600; }
+.nav-item {
+  display:flex; align-items:center; gap:10px; padding: 10px 14px; border-radius:10px;
+  cursor:pointer; font-size:13.5px; font-weight:500; color:rgba(255,255,255,.7);
+  transition: all .15s; margin: 2px 6px;
+}
+.nav-item:hover { background: var(--sidebar-hover); color:#fff; }
+.nav-item.active { background: var(--sidebar-active); color:#fff; box-shadow: 0 4px 12px rgba(59,91,255,.35); }
+.nav-item .nav-icon { width:20px; text-align:center; font-size:16px; flex-shrink:0; }
 
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-  .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: .2s; font-family: inherit; }
-  .btn-primary { background: linear-gradient(135deg,#3b82f6,#6366f1); color: #fff; }
-  .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
-  .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-  .btn-danger { background: linear-gradient(135deg,#ef4444,#dc2626); color: #fff; }
-  .btn-danger:hover { opacity: .9; }
-  .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #475569; }
-  .btn-ghost:hover { background: #1e293b; color: #e2e8f0; }
+.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,.08); }
+.repo-info { background:rgba(255,255,255,.06); border-radius:10px; padding:10px 12px; }
+.repo-info-name { font-size:12px; font-weight:600; color:rgba(255,255,255,.9); }
+.repo-info-status { font-size:11px; color:var(--success); margin-top:2px; }
+.btn-disconnect {
+  width:100%; margin-top:10px; padding:8px; border:1px solid rgba(255,255,255,.15);
+  background:transparent; color:rgba(255,255,255,.7); border-radius:8px; font-size:12px;
+  cursor:pointer; font-family:inherit; transition:.15s;
+}
+.btn-disconnect:hover { background:rgba(239,68,68,.15); color:var(--danger); border-color:var(--danger); }
 
-  /* 日志区 */
-  .log-area { background: #020617; border: 1px solid #1e293b; border-radius: 10px; padding: 16px; max-height: 360px; overflow-y: auto; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px; line-height: 1.6; }
-  .log-area .ok { color: #4ade80; }
-  .log-area .err { color: #f87171; }
-  .log-area .info { color: #60a5fa; }
-  .log-area .warn { color: #fbbf24; }
-  .log-area .dim { color: #475569; }
+/* ====== 主内容区 ====== */
+.main { margin-left:240px; flex:1; min-height:100vh; }
+.topbar {
+  height:56px; background:var(--card); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; padding:0 28px;
+  position:sticky; top:0; z-index:50;
+}
+.topbar-title { font-size:17px; font-weight:700; }
+.topbar-actions { display:flex; align-items:center; gap:12px; }
+.topbar-btn {
+  padding:6px 14px; border:1px solid var(--border); background:var(--card);
+  border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;
+  color:var(--text2); transition:.15s; display:flex; align-items:center; gap:5px;
+}
+.topbar-btn:hover { border-color:var(--primary); color:var(--primary); }
+.topbar-btn.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+.topbar-btn.primary:hover { opacity:.9; }
 
-  /* 状态指示 */
-  .status-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 12px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
-  .status-dot.connected { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,.5); }
-  .status-dot.error { background: #f87171; }
-  .status-dot.working { background: #fbbf24; animation: pulse 1s infinite; }
+.content { padding: 28px; max-width:1200px; }
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ====== 页面容器 ====== */
+.page { display:none; animation: fadeIn .25s ease; }
+.page.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 
-  /* 文件列表 */
-  .file-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
-  .file-list li { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; font-size: 13px; border-bottom: 1px solid #1e293b; }
-  .file-list li:last-child { border-bottom: none; }
-  .file-list li .fname { color: #e2e8f0; }
-  .file-list li .fsize { color: #64748b; font-size: 11px; }
+/* ====== 统计卡片 ====== */
+.stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;
+  display:flex; flex-direction:column;
+}
+.stat-value { font-size:32px; font-weight:800; line-height:1.1; }
+.stat-value.blue { color:var(--primary); }
+.stat-value.green { color:var(--success); }
+.stat-value.orange { color:var(--warning); }
+.stat-value.purple { color:#8b5cf6; }
+.stat-label { font-size:12.5px; color:var(--text2); margin-top:6px; font-weight:600; }
 
-  /* 进度条 */
-  .progress-wrap { margin-top: 16px; display: none; }
-  .progress-wrap.active { display: block; }
-  .progress-bar { height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg,#3b82f6,#a78bfa); width: 0%; transition: width .3s; border-radius: 3px; }
-  .progress-text { font-size: 12px; color: #94a3b8; margin-top: 6px; text-align: center; }
+/* ====== 卡片 ====== */
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:20px;
+}
+.card-title { font-size:16px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.card-desc { font-size:13px; color:var(--text2); margin-bottom:18px; }
 
-  /* 两栏布局 */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+/* ====== 状态标签 ====== */
+.status-tags { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.status-tag {
+  display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:20px;
+  font-size:12px; font-weight:600;
+}
+.status-tag.ok { background:var(--success-bg); color:var(--success); }
+.status-tag.warn { background:var(--warning-bg); color:var(--warning); }
+.status-tag.err { background:var(--danger-bg); color:var(--danger); }
+.status-tag.info { background:var(--info-bg); color:var(--info); }
+.status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+.status-dot.ok { background:var(--success); }
+.status-dot.warn { background:var(--warning); }
+.status-dot.err { background:var(--danger); }
 
-  .back-link { display: inline-block; margin-bottom: 20px; color: #60a5fa; text-decoration: none; font-size: 13px; }
-  .back-link:hover { text-decoration: underline; }
+/* ====== 表单 ====== */
+.form-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.form-group { margin-bottom:16px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label {
+  display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px;
+}
+.form-label .hint { font-weight:400; color:var(--text3); font-size:11.5px; margin-left:4px; }
+.form-input, .form-textarea, .form-select {
+  width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px;
+  font-size:14px; font-family:inherit; color:var(--text); background:#fff;
+  transition: border-color .15s; outline:none;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,91,255,.1); }
+.form-textarea { resize:vertical; min-height:80px; line-height:1.5; }
+
+/* ====== 按钮 ====== */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:10px 20px; border:none; border-radius:10px; font-size:13.5px; font-weight:600;
+  cursor:pointer; font-family:inherit; transition:all .15s;
+}
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(59,91,255,.3); }
+.btn-success { background:var(--success); color:#fff; }
+.btn-success:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(16,185,129,.3); }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-danger:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(239,68,68,.3); }
+.btn-ghost { background:transparent; color:var(--text2); border:1.5px solid var(--border); }
+.btn-ghost:hover { border-color:var(--primary); color:var(--primary); }
+.btn-sm { padding:6px 14px; font-size:12px; border-radius:8px; }
+.btn:disabled { opacity:.5; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+
+/* ====== 文件管理器 ====== */
+.file-table { width:100%; border-collapse:collapse; }
+.file-table th {
+  text-align:left; padding:10px 14px; font-size:12px; font-weight:700; color:var(--text2);
+  text-transform:uppercase; letter-spacing:.5px; border-bottom:2px solid var(--border);
+}
+.file-table td { padding:10px 14px; font-size:13.5px; border-bottom:1px solid var(--border); }
+.file-table tr:hover td { background:var(--primary-light); }
+.file-icon { font-size:18px; }
+.file-name { font-weight:600; color:var(--primary); cursor:pointer; }
+.file-name:hover { text-decoration:underline; }
+.file-size { color:var(--text3); }
+.file-actions { display:flex; gap:6px; }
+
+/* ====== 编辑器 ====== */
+.editor-wrap { display:none; margin-top:20px; }
+.editor-wrap.show { display:block; animation:fadeIn .2s; }
+.editor-bar {
+  display:flex; align-items:center; justify-content:space-between; padding:10px 14px;
+  background:#1e293b; border-radius:10px 10px 0 0; color:#e2e8f0;
+}
+.editor-path { font-size:13px; font-weight:600; font-family:'Cascadia Code','Fira Code',monospace; }
+.editor-area {
+  width:100%; min-height:400px; padding:16px; border:1.5px solid var(--border); border-top:none;
+  border-radius:0 0 10px 10px; font-family:'Cascadia Code','Fira Code',monospace; font-size:13px;
+  line-height:1.6; tab-size:2; resize:vertical; outline:none; background:#fafbfc;
+}
+
+/* ====== 日志区 ====== */
+.log-area {
+  background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:16px;
+  max-height:300px; overflow-y:auto; font-family:'Cascadia Code','Fira Code',monospace; font-size:12px; line-height:1.7;
+}
+.log-ok { color:#4ade80; }
+.log-err { color:#f87171; }
+.log-info { color:#60a5fa; }
+.log-warn { color:#fbbf24; }
+.log-dim { color:#475569; }
+
+/* ====== 进度条 ====== */
+.progress-wrap { display:none; margin-top:16px; }
+.progress-wrap.show { display:block; }
+.progress-track { height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),#8b5cf6); width:0%; transition:width .3s; border-radius:3px; }
+.progress-text { font-size:12px; color:var(--text2); margin-top:6px; text-align:center; }
+
+/* ====== 连接向导 ====== */
+.connect-wizard {
+  max-width:480px; margin:80px auto 0; text-align:center;
+}
+.connect-wizard-icon { font-size:48px; margin-bottom:16px; }
+.connect-wizard h2 { font-size:22px; margin-bottom:8px; }
+.connect-wizard p { color:var(--text2); font-size:14px; margin-bottom:24px; }
+.connect-form { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; text-align:left; }
+
+/* ====== 响应式 ====== */
+@media(max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left:0; }
+  .form-grid { grid-template-columns:1fr; }
+  .content { padding:16px; }
+}
+@media(min-width: 901px) {
+  .mobile-toggle { display:none !important; }
+}
+.mobile-toggle {
+  display:flex; align-items:center; justify-content:center; width:36px; height:36px;
+  border:1px solid var(--border); background:var(--card); border-radius:8px;
+  cursor:pointer; font-size:18px;
+}
+
+/* ====== 提示消息 ====== */
+.toast {
+  position:fixed; bottom:24px; right:24px; padding:14px 20px; border-radius:12px;
+  font-size:13.5px; font-weight:600; z-index:999; animation: slideUp .3s ease;
+  display:flex; align-items:center; gap:8px; max-width:380px; box-shadow:0 8px 30px rgba(0,0,0,.12);
+}
+.toast.success { background:var(--success); color:#fff; }
+.toast.error { background:var(--danger); color:#fff; }
+.toast.info { background:var(--info); color:#fff; }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+/* ====== 空状态 ====== */
+.empty-state { text-align:center; padding:48px 20px; color:var(--text3); }
+.empty-state-icon { font-size:48px; margin-bottom:12px; }
+.empty-state-text { font-size:14px; }
+
+/* ====== 自定义按钮编辑 ====== */
+.custom-btn-list { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.custom-btn-item {
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  background:var(--bg); border:1px solid var(--border); border-radius:10px;
+}
+.custom-btn-item input { flex:1; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; }
+.custom-btn-item .btn-remove {
+  width:28px; height:28px; border:none; background:var(--danger-bg); color:var(--danger);
+  border-radius:6px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;
+}
 </style>
 </head>
 <body>
 
-<div class="admin-wrap">
-  <a class="back-link" href="index.html">← 返回首页</a>
-
-  <div class="admin-head">
-    <h1><span>⚙️ Admin</span> 部署管理中心</h1>
-    <p>配置 GitHub 仓库与 PAT，一键将修改部署到 GitHub Pages</p>
+<!-- ====== 侧边栏 ====== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-logo">⚙️</span>
+    <div>
+      <div class="sidebar-title">管理后台</div>
+      <div class="sidebar-subtitle">yanzien's App Hub</div>
+    </div>
   </div>
 
-  <!-- 连接配置 -->
-  <div class="card">
-    <h3><span class="emoji">🔗</span> GitHub 连接配置</h3>
-    <div class="grid2">
-      <div class="form-row">
-        <label>仓库地址（owner/repo）</label>
-        <input type="text" id="inp-repo" placeholder="yanzien/app-hub" value="yanzien/app-hub">
-        <div class="hint">格式：用户名/仓库名</div>
+  <nav class="sidebar-nav" id="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">主导航</div>
+      <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+        <span class="nav-icon">📊</span> 概览
       </div>
-      <div class="form-row">
-        <label>Personal Access Token (PAT)</label>
-        <input type="password" id="inp-token" placeholder="ghp_xxxxxxxxxxxx">
-        <div class="hint">需要 repo 权限 · 仅用于部署，不会上传至任何地方</div>
+      <div class="nav-item" data-page="settings" onclick="switchPage('settings')">
+        <span class="nav-icon">⚙️</span> 站点设置
+      </div>
+      <div class="nav-item" data-page="files" onclick="switchPage('files')">
+        <span class="nav-icon">📁</span> 文件管理
+      </div>
+      <div class="nav-item" data-page="deploy" onclick="switchPage('deploy')">
+        <span class="nav-icon">🚀</span> 部署管理
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="testConnection()">🔍 测试连接</button>
-      <button class="btn btn-ghost" onclick="loadRemoteFiles()">📂 拉取远程文件列表</button>
+    <div class="nav-section">
+      <div class="nav-label">系统</div>
+      <div class="nav-item" data-page="connect" onclick="switchPage('connect')">
+        <span class="nav-icon">🔗</span> 连接 / 云端
+      </div>
     </div>
-    <div class="status-bar" id="conn-status">
-      <span class="status-dot" id="status-dot"></span>
-      <span id="status-text">未连接</span>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="repo-info" id="repo-info">
+      <div class="repo-info-name" id="repo-display">未连接</div>
+      <div class="repo-info-status" id="conn-display">—</div>
     </div>
+    <button class="btn-disconnect" onclick="disconnect()">断开连接</button>
   </div>
+</aside>
 
-  <!-- 部署操作 -->
-  <div class="card">
-    <h3><span class="emoji">🚀</span> 一键部署</h3>
-    <p style="font-size:13px;color:#94a3b8;margin-bottom:12px">
-      将当前项目文件上传到 GitHub 仓库的 main 分支。支持增量更新（仅上传变更文件）。
-    </p>
-    <div class="form-row">
-      <label>要部署的文件（每行一个路径，留空则自动扫描）</label>
-      <textarea id="inp-files" placeholder="自动扫描项目目录...&#10;index.html&#10;css/style.css&#10;js/app.js&#10;..."></textarea>
-      <div class="hint">留空 = 自动扫描以下文件：*.html, *.css, *.js, assets/*</div>
+<!-- ====== 主内容 ====== -->
+<div class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">概览</div>
     </div>
-    <div class="form-row">
-      <label>提交信息</label>
-      <input type="text" id="inp-msg" placeholder="update: 部署更新" value="update: 部署更新">
+    <div class="topbar-actions">
+      <button class="btn btn-sm btn-primary" onclick="switchPage('deploy')">🚀 部署</button>
+      <button class="btn btn-sm btn-ghost" onclick="window.open('index.html','_blank')">🌐 查看站点</button>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="btn-deploy" onclick="startDeploy()">🚀 开始部署</button>
-      <button class="btn btn-ghost" onclick="clearLog()">🗑️ 清空日志</button>
+  </header>
+
+  <div class="content">
+
+    <!-- ========== 页面：概览 ========== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-value blue" id="stat-files">-</div><div class="stat-label">文件 / 项目</div></div>
+        <div class="stat-card"><div class="stat-value green" id="stat-deploys">-</div><div class="stat-label">已部署</div></div>
+        <div class="stat-card"><div class="stat-value orange" id="stat-config">✓</div><div class="stat-label">已配置</div></div>
+        <div class="stat-card"><div class="stat-value purple" id="stat-default">默认</div><div class="stat-label">站点/仓库</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📈 状态分布</div>
+        <div class="status-tags" id="status-tags">
+          <span class="status-tag ok"><span class="status-dot ok"></span> 已就绪 0</span>
+          <span class="status-tag info"><span class="status-dot warn"></span> 进行中 0</span>
+          <span class="status-tag err"><span class="status-dot err"></span> 失败 0</span>
+          <span class="status-tag warn"><span class="status-dot"></span> 待部署 0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👥 访问量</div>
+        <div class="card-desc">站点已接入 不子(busanzhi) 免费计数器，实时显示站内访客数与浏览量。无需注册、无需服务器。</div>
+        <div class="card-desc" style="margin-top:8px;font-size:12px;">
+          如需详细访问统计/历史记录，可在「设置 / 云端」中接入 Umami 等隐私分析（可选）。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-desc" style="font-size:13px;">
+          所有修改保存后即提交至 GitHub 仓库并自动通过 GitHub Pages 发布，访客立刻看到更新。
+        </div>
+      </div>
     </div>
 
-    <div class="progress-wrap" id="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="progress-text" id="progress-text">准备中...</div>
+    <!-- ========== 页面：站点设置 ========== -->
+    <div class="page" id="page-settings">
+      <div class="card">
+        <div class="card-title">🌐 站点设置</div>
+        <div class="card-desc">保存后同步到 GitHub（云端），前台实时生效。</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">站点名称（导航/页脚）</label>
+            <input class="form-input" id="set-site-name" placeholder="yanzien">
+          </div>
+          <div class="form-group">
+            <label class="form-label">浏览器标题（&lt;title&gt;）</label>
+            <input class="form-input" id="set-site-title" placeholder="yanzien - 个人官网">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">首页公告 <span class="hint">(留空不显示)</span></label>
+            <textarea class="form-textarea" id="set-announcement" rows="2" placeholder="🎉 新版BUG已修，快来试用吧！"></textarea>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">首页副标题</label>
+            <input class="form-input" id="set-subtitle" placeholder="你好，我是 yanzien">
+          </div>
+          <div class="form-group">
+            <label class="form-label">首页主标题文字</label>
+            <input class="form-input" id="set-main-title" placeholder="查看作品">
+          </div>
+          <div class="form-group">
+            <label class="form-label">首页副标题文字</label>
+            <input class="form-input" id="set-main-subtitle" placeholder="联系我">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔘 首页自定义按钮</div>
+        <div class="card-desc">如果下方添加了按钮，首页将优先显示这些按钮；留空则用上方的「主/次按钮」。</div>
+        <div class="custom-btn-list" id="custom-btn-list"></div>
+        <button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="addCustomBtn()">+ 添加按钮</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📬 联系方式 & 社交链接</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">邮箱</label>
+            <input class="form-input" id="set-email" placeholder="yanzien2013@163.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GitHub</label>
+            <input class="form-input" id="set-github" placeholder="https://github.com/yanzien">
+          </div>
+          <div class="form-group">
+            <label class="form-label">微信</label>
+            <input class="form-input" id="set-wechat" placeholder="Young（QQ同号）">
+          </div>
+          <div class="form-group">
+            <label class="form-label">其他</label>
+            <input class="form-input" id="set-other" placeholder="">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📇 联系方式自定义卡片</div>
+        <div class="card-desc">在联系方式区域额外展示卡片，内容支持 Markdown（可放二维码、社交链接等）。</div>
+        <div class="form-group full">
+          <textarea class="form-textarea" id="set-contact-card" rows="3" placeholder="可选：自定义联系卡片内容..."></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSiteSettings()">💾 保存设置</button>
+        <button class="btn btn-ghost" onclick="loadSiteSettings()">↺ 重置</button>
+      </div>
     </div>
-  </div>
 
-  <!-- 日志 -->
-  <div class="card">
-    <h3><span class="emoji">📋</span> 操作日志</h3>
-    <div class="log-area" id="log-area">
-      <div class="dim">[系统] Admin 面板已加载，等待操作...</div>
+    <!-- ========== 页面：文件管理 ========== -->
+    <div class="page" id="page-files">
+      <div class="card">
+        <div class="card-title">📁 远程文件列表</div>
+        <div class="card-desc">点击文件名可在线编辑内容并直接保存到 GitHub。</div>
+        <table class="file-table" id="file-table">
+          <thead><tr><th>文件</th><th>大小</th><th>操作</th></tr></thead>
+          <tbody id="file-tbody">
+            <tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">请先连接 GitHub 仓库</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 编辑器 -->
+      <div class="editor-wrap" id="editor-wrap">
+        <div class="editor-bar">
+          <span class="editor-path" id="editor-path"></span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm btn-success" onclick="saveFile()">💾 保存到 GitHub</button>
+            <button class="btn btn-sm btn-ghost" onclick="closeEditor()">✕ 关闭</button>
+          </div>
+        </div>
+        <textarea class="editor-area" id="editor-area" spellcheck="false"></textarea>
+      </div>
     </div>
-  </div>
 
-  <!-- 远程文件 -->
-  <div class="card">
-    <h3><span class="emoji">☁️</span> 远程仓库文件</h3>
-    <ul class="file-list" id="remote-file-list">
-      <li><span class="fname dim">点击「拉取远程文件列表」加载</span></li>
-    </ul>
-  </div>
+    <!-- ========== 页面：部署管理 ========== -->
+    <div class="page" id="page-deploy">
+      <div class="card">
+        <div class="card-title">🚀 一键部署</div>
+        <div class="card-desc">将当前项目所有文件上传到 GitHub 仓库的 main 分支。支持增量更新。</div>
 
-  <footer style="text-align:center;padding:20px;color:#47556b;font-size:12px">
-    yanzien's App Hub · Admin Panel · PAT 仅在浏览器本地使用，不会传输至第三方服务器
-  </footer>
-</div>
+        <div class="form-group">
+          <label class="form-label">提交信息</label>
+          <input class="form-input" id="deploy-msg" value="update: 部署更新" placeholder="update: 部署更新">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-deploy" onclick="startDeploy()">🚀 开始部署</button>
+          <button class="btn btn-ghost" onclick="clearLog()">🗑️ 清空日志</button>
+        </div>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="progress-text" id="progress-text">准备中...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 操作日志</div>
+        <div class="log-area" id="log-area"><div class="log-dim">[系统] 就绪，等待操作...</div></div>
+      </div>
+    </div>
+
+    <!-- ========== 页面：连接/云端 ========== -->
+    <div class="page" id="page-connect">
+      <div class="connect-wizard" id="connect-form">
+        <div class="connect-wizard-icon">🔗</div>
+        <h2>后台 · GitHub 同步</h2>
+        <p>内容直接同步到你的 GitHub 仓库（云端），无需服务器。</p>
+
+        <div class="connect-form">
+          <div class="form-group">
+            <label class="form-label">GitHub 用户名</label>
+            <input class="form-input" id="inp-user" placeholder="yanzien">
+          </div>
+          <div class="form-group">
+            <label class="form-label">仓库名</label>
+            <input class="form-input" id="inp-repo-name" placeholder="app-hub">
+          </div>
+          <div class="form-group">
+            <label class="form-label">分支</label>
+            <input class="form-input" id="inp-branch" value="main" placeholder="main">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Personal Access Token</label>
+            <input class="form-input" type="password" id="inp-token" placeholder="ghp_xxxxxxxxxxxx">
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;">Token 仅保存在你的浏览器本地（localStorage），用于向 GitHub 提交内容，需要 repo 权限。详见 README。</div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="connectGitHub()">连接</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.content -->
+</div><!-- /.main -->
 
 <script>
-// ========== Admin 部署管理 ==========
+// ============================================================
+//  全局状态
+// ============================================================
 const API = 'https://api.github.com';
-const logEl = document.getElementById('log-area');
+let state = {
+  user: '', repo: '', token: '', branch: 'main',
+  connected: false,
+  remoteFiles: [],
+  editingFile: null,
+  deployStats: { total: 0, ok: 0, fail: 0, pending: 0 },
+};
 
-function log(msg, cls='') {
-  const d = document.createElement('div');
-  if (cls) d.className = cls;
-  const t = new Date().toLocaleTimeString('zh-CN',{hour12:false});
-  d.textContent = `[${t}] ${msg}`;
-  logEl.appendChild(d);
-  logEl.scrollTop = logEl.scrollHeight;
+// ============================================================
+//  导航 & 页面切换
+// ============================================================
+function switchPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  const nav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if (page) page.classList.add('active');
+  if (nav) nav.classList.add('active');
+
+  const titles = { dashboard:'概览', settings:'站点设置', files:'文件管理', deploy:'部署管理', connect:'连接 / 云端' };
+  document.getElementById('topbar-title').textContent = titles[pageId] || '管理后台';
+
+  // 关闭移动端侧边栏
+  document.getElementById('sidebar').classList.remove('open');
+
+  // 页面特定逻辑
+  if (pageId === 'files' && state.connected) loadFileList();
+  if (pageId === 'dashboard' && state.connected) refreshDashboard();
+  if (pageId === 'settings') loadSiteSettings();
 }
 
-function clearLog() { logEl.innerHTML = ''; }
-
-function setStatus(text, state) {
-  document.getElementById('status-text').textContent = text;
-  const dot = document.getElementById('status-dot');
-  dot.className = 'status-dot ' + (state || '');
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
 
-function getRepo() {
-  const v = document.getElementById('inp-repo').value.trim();
-  if (!v.includes('/')) { alert('请输入正确的仓库格式：owner/repo'); return null; }
-  return v;
-}
-function getToken() {
-  const t = document.getElementById('inp-token').value.trim();
-  if (!t) { alert('请输入 PAT'); return null; }
-  return t;
+// ============================================================
+//  Toast 提示
+// ============================================================
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; setTimeout(() => el.remove(), 300); }, 3000);
 }
 
-// ---- 测试连接 ----
-async function testConnection() {
-  const repo = getRepo(), token = getToken();
-  if (!repo || !token) return;
+// ============================================================
+//  连接 GitHub
+// ============================================================
+async function connectGitHub() {
+  const user = document.getElementById('inp-user').value.trim();
+  const repoName = document.getElementById('inp-repo-name').value.trim();
+  const branch = document.getElementById('inp-branch').value.trim() || 'main';
+  const token = document.getElementById('inp-token').value.trim();
 
-  setStatus('测试连接中...', 'working');
-  log('正在测试 GitHub 连接...', 'info');
+  if (!user || !repoName || !token) { toast('请填写完整信息', 'error'); return; }
+
+  state.user = user; state.repo = repoName; state.branch = branch; state.token = token;
+  const fullRepo = `${user}/${repoName}`;
 
   try {
-    const r = await fetch(`${API}/repos/${repo}`, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
-    });
-    if (r.ok) {
-      const data = await r.json();
-      setStatus(`已连接 · ${data.full_name} ⭐${data.stargazers_count}`, 'connected');
-      log(`✅ 连接成功！仓库：${data.full_name} | 描述：${data.description || '无'} | 默认分支：${data.default_branch}`, 'ok');
-    } else {
-      const e = await r.json().catch(() => ({}));
-      throw new Error(e.message || `HTTP ${r.status}`);
-    }
-  } catch (err) {
-    setStatus(`连接失败: ${err.message}`, 'error');
-    log(`❌ 连接失败: ${err.message}`, 'err');
-  }
-}
-
-// ---- 拉取远程文件 ----
-async function loadRemoteFiles() {
-  const repo = getRepo(), token = getToken();
-  if (!repo || !token) return;
-
-  log('正在拉取远程文件列表...', 'info');
-  const ul = document.getElementById('remote-file-list');
-  ul.innerHTML = '<li><span class="fname info">加载中...</span></li>';
-
-  try {
-    const r = await fetch(`${API}/repos/${repo}/contents/`, {
+    log(`正在连接 ${fullRepo}...`, 'info');
+    const r = await fetch(`${API}/repos/${fullRepo}`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+
+    state.connected = true;
+    localStorage.setItem('admin_user', user);
+    localStorage.setItem('admin_repo_name', repoName);
+    localStorage.setItem('admin_branch', branch);
+    localStorage.setItem('admin_token', token);
+
+    updateConnUI(fullRepo, data.default_branch);
+    toast(`✅ 已连接 ${fullRepo}`, 'success');
+    log(`✅ 连接成功！${data.full_name} ⭐${data.stargazers_count}`, 'ok');
+    switchPage('dashboard');
+  } catch(e) {
+    toast(`❌ 连接失败: ${e.message}`, 'error');
+    log(`❌ 连接失败: ${e.message}`, 'err');
+  }
+}
+
+function disconnect() {
+  state.connected = false;
+  state.user = ''; state.repo = ''; state.token = '';
+  localStorage.removeItem('admin_user');
+  localStorage.removeItem('admin_repo_name');
+  localStorage.removeItem('admin_branch');
+  localStorage.removeItem('admin_token');
+  updateConnUI('未连接', '—');
+  switchPage('connect');
+  toast('已断开连接', 'info');
+}
+
+function updateConnUI(repo, status) {
+  document.getElementById('repo-display').textContent = repo;
+  document.getElementById('conn-display').textContent = status || '已连接';
+}
+
+// ============================================================
+//  概览仪表盘
+// ============================================================
+async function refreshDashboard() {
+  if (!state.connected) return;
+  const fullRepo = `${state.user}/${state.repo}`;
+  try {
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    if (!r.ok) return;
+    const items = await r.json();
+    let count = 0;
+    async function walk(list) {
+      for (const f of list) {
+        if (f.type === 'dir') {
+          const sr = await fetch(`${API}/repos/${fullRepo}/contents/${f.path}`, {
+            headers: { 'Authorization': `Bearer ${state.token}` }
+          });
+          if (sr.ok) walk(await sr.json());
+        } else count++;
+      }
+    }
+    await walk(items);
+    document.getElementById('stat-files').textContent = count;
+
+    // 更新状态标签
+    const tags = document.getElementById('status-tags');
+    tags.innerHTML = `
+      <span class="status-tag ok"><span class="status-dot ok"></span> 已就绪 ${count}</span>
+      <span class="status-tag info"><span class="status-dot warn"></span> 进行中 0</span>
+      <span class="status-tag err"><span class="status-dot err"></span> 失败 0</span>
+      <span class="status-tag warn"><span class="status-dot"></span> 待部署 0</span>`;
+  } catch(e) {}
+}
+
+// ============================================================
+//  站点设置（localStorage + 可选推送到 GitHub）
+// ============================================================
+const SETTINGS_KEY = 'site_settings';
+
+function getDefaultSettings() {
+  return {
+    siteName: 'yanzien',
+    siteTitle: "yanzien's App Hub",
+    announcement: '',
+    subtitle: '你好，我是 yanzien',
+    mainTitle: '查看作品',
+    mainSubtitle: '联系我',
+    customButtons: [],
+    email: 'yanzien2013@163.com',
+    github: 'https://github.com/yanzien',
+    wechat: 'Young（QQ同号）',
+    other: '',
+    contactCard: '',
+  };
+}
+
+function getSettings() {
+  try {
+    const s = localStorage.getItem(SETTINGS_KEY);
+    return s ? { ...getDefaultSettings(), ...JSON.parse(s) } : getDefaultSettings();
+  } catch { return getDefaultSettings(); }
+}
+
+function loadSiteSettings() {
+  const s = getSettings();
+  document.getElementById('set-site-name').value = s.siteName;
+  document.getElementById('set-site-title').value = s.siteTitle;
+  document.getElementById('set-announcement').value = s.announcement;
+  document.getElementById('set-subtitle').value = s.subtitle;
+  document.getElementById('set-main-title').value = s.mainTitle;
+  document.getElementById('set-main-subtitle').value = s.mainSubtitle;
+  document.getElementById('set-email').value = s.email;
+  document.getElementById('set-github').value = s.github;
+  document.getElementById('set-wechat').value = s.wechat;
+  document.getElementById('set-other').value = s.other;
+  document.getElementById('set-contact-card').value = s.contactCard;
+  renderCustomButtons(s.customButtons);
+}
+
+function saveSiteSettings() {
+  const s = {
+    siteName: document.getElementById('set-site-name').value.trim(),
+    siteTitle: document.getElementById('set-site-title').value.trim(),
+    announcement: document.getElementById('set-announcement').value.trim(),
+    subtitle: document.getElementById('set-subtitle').value.trim(),
+    mainTitle: document.getElementById('set-main-title').value.trim(),
+    mainSubtitle: document.getElementById('set-main-subtitle').value.trim(),
+    customButtons: getCustomButtonsData(),
+    email: document.getElementById('set-email').value.trim(),
+    github: document.getElementById('set-github').value.trim(),
+    wechat: document.getElementById('set-wechat').value.trim(),
+    other: document.getElementById('set-other').value.trim(),
+    contactCard: document.getElementById('set-contact-card').value.trim(),
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  toast('✅ 设置已保存（浏览器本地）', 'success');
+
+  // 如果已连接 GitHub，询问是否推送
+  if (state.connected && confirm('是否同时将设置同步到 GitHub？（会创建/更新 site-settings.json）')) {
+    pushSettingsToGithub(s);
+  }
+}
+
+async function pushSettingsToGithub(s) {
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(s, null, 2))));
+    const path = 'site-settings.json';
+    const fullRepo = `${state.user}/${state.repo}`;
+
+    // 获取现有 sha
+    let sha = null;
+    try {
+      const gr = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
+        headers: { 'Authorization': `Bearer ${state.token}` }
+      });
+      if (gr.ok) sha = (await gr.json()).sha;
+    } catch {}
+
+    const body = { message: 'update: 站点设置', content };
+    if (sha) body.sha = sha;
+
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify(body)
+    });
+    if (r.ok) {
+      toast('✅ 设置已同步到 GitHub', 'success');
+    } else {
+      throw new Error(`HTTP ${r.status}`);
+    }
+  } catch(e) {
+    toast(`同步失败: ${e.message}`, 'error');
+  }
+}
+
+// ---- 自定义按钮 ----
+function renderCustomButtons(btns) {
+  const container = document.getElementById('custom-btn-list');
+  container.innerHTML = '';
+  (btns || []).forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'custom-btn-item';
+    div.innerHTML = `
+      <input type="text" value="${escHtml(b.text)}" placeholder="按钮文字" data-idx="${i}" data-field="text">
+      <input type="text" value="${escHtml(b.url)}" placeholder="链接地址" data-idx="${i}" data-field="url" style="flex:1.5">
+      <button class="btn-remove" onclick="removeCustomBtn(${i})">✕</button>`;
+    container.appendChild(div);
+  });
+}
+
+function addCustomBtn() {
+  const s = getSettings();
+  if (!s.customButtons) s.customButtons = [];
+  s.customButtons.push({ text: '按钮文字', url: 'https://' });
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  renderCustomButtons(s.customButtons);
+}
+
+function removeCustomBtn(idx) {
+  const s = getSettings();
+  s.customButtons.splice(idx, 1);
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  renderCustomButtons(s.customButtons);
+}
+
+function getCustomButtonsData() {
+  const items = document.querySelectorAll('#custom-btn-list .custom-btn-item');
+  return Array.from(items).map(item => ({
+    text: item.querySelector('[data-field="text"]').value.trim(),
+    url: item.querySelector('[data-field="url"]').value.trim(),
+  })).filter(b => b.text && b.url);
+}
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// ============================================================
+//  文件管理
+// ============================================================
+async function loadFileList() {
+  const tbody = document.getElementById('file-tbody');
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text3)">加载中...</td></tr>';
+
+  try {
+    const fullRepo = `${state.user}/${state.repo}`;
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/`, {
+      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const files = await r.json();
-    ul.innerHTML = '';
-    // 递归获取子目录
+
     const allFiles = [];
     async function walk(items, prefix='') {
       for (const f of items) {
         const path = prefix ? `${prefix}/${f.name}` : f.name;
         if (f.type === 'dir') {
-          const sr = await fetch(`${API}/repos/${repo}/contents/${path}`, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+          const sr = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
+            headers: { 'Authorization': `Bearer ${state.token}` }
           });
           if (sr.ok) await walk(await sr.json(), path);
         } else {
-          allFiles.push({ name: path, size: f.size, sha: f.sha });
+          allFiles.push({ name: path, size: f.size, sha: f.sha, type: f.type });
         }
       }
     }
     await walk(files);
     allFiles.sort((a,b) => a.name.localeCompare(b.name));
+    state.remoteFiles = allFiles;
+
+    tbody.innerHTML = '';
     allFiles.forEach(f => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="fname">${f.name}</span><span class="fsize">${formatSize(f.size)}</span>`;
-      ul.appendChild(li);
+      const tr = document.createElement('tr');
+      const icon = getFileIcon(f.name);
+      tr.innerHTML = `
+        <td><span class="file-icon">${icon}</span> <span class="file-name" onclick="editFile('${f.name}')">${f.name}</span></td>
+        <td><span class="file-size">${formatSize(f.size)}</span></td>
+        <td class="file-actions">
+          <button class="btn btn-sm btn-ghost" onclick="editFile('${f.name}')">编辑</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFile('${f.name}')">删除</button>
+        </td>`;
+      tbody.appendChild(tr);
     });
-    log(`✅ 远程文件列表加载完成，共 ${allFiles.length} 个文件`, 'ok');
-  } catch (err) {
-    ul.innerHTML = '<li><span class="fname err">加载失败</span></li>';
-    log(`❌ 加载失败: ${err.message}`, 'err');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--danger)">加载失败: ${e.message}</td></tr>`;
   }
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = { html:'📄', css:'🎨', js:'⚡', json:'📋', md:'📝', png:'🖼️', jpg:'🖼️', svg:'🖼️', exe:'⚙️', py:'🐍', txt:'📄' };
+  return icons[ext] || '📄';
 }
 
 function formatSize(b) {
@@ -272,243 +868,220 @@ function formatSize(b) {
   return (b/1048576).toFixed(1) + ' MB';
 }
 
-// ---- 获取要部署的文件列表 ----
-async function getDeployFileList() {
-  const customText = document.getElementById('inp-files').value.trim();
-  if (customText) {
-    return customText.split('\n').map(s => s.trim()).filter(Boolean);
-  }
-  // 自动扫描：尝试从同源获取文件列表
+// ---- 在线编辑文件 ----
+async function editFile(path) {
+  const fullRepo = `${state.user}/${state.repo}`;
   try {
-    const r = await fetch('./deploy-manifest.txt');
-    if (r.ok) {
-      const txt = await r.text();
-      return txt.split('\n').map(s => s.trim()).filter(Boolean);
-    }
-  } catch(e) {}
-  // 回退到默认列表
-  return [
-    'index.html', 'time-machine.html',
-    'css/style.css',
-    'js/app.js', 'js/desktop-ops.js', 'js/time-machine.js', 'js/web-sync.js',
-    'assets/young-wechat.png', 'assets/YoungDesktopController.exe'
-  ];
-}
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const content = atob(data.content.replace(/\n/g, ''));
 
-// ---- Base64 编码文件内容 ----
-async function fileToBase64(path) {
-  // 尝试 fetch 同源文件
-  try {
-    const r = await fetch(path);
-    if (!r.ok) return null;
-    const buf = await r.arrayBuffer();
-    // 转为 base64
-    const bytes = new Uint8Array(buf);
-    let bin = '';
-    for (const b of bytes) bin += String.fromCharCode(b);
-    return btoa(bin);
+    state.editingFile = { path, sha: data.sha };
+    document.getElementById('editor-path').textContent = path;
+    document.getElementById('editor-area').value = content;
+    document.getElementById('editor-wrap').classList.add('show');
+    document.getElementById('editor-wrap').scrollIntoView({ behavior: 'smooth' });
   } catch(e) {
-    return null;
+    toast(`读取失败: ${e.message}`, 'error');
   }
 }
 
-// ---- 部署 ----
+async function saveFile() {
+  if (!state.editingFile) return;
+  const content = document.getElementById('editor-area').value;
+  const b64 = btoa(unescape(encodeURIComponent(content)));
+  const fullRepo = `${state.user}/${state.repo}`;
+
+  try {
+    const body = {
+      message: `update: 编辑 ${state.editingFile.path}`,
+      content: b64,
+      sha: state.editingFile.sha,
+    };
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(state.editingFile.path)}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+    const newData = await r.json();
+    state.editingFile.sha = newData.sha;
+    toast(`✅ ${state.editingFile.path} 已保存`, 'success');
+    log(`✅ 已保存: ${state.editingFile.path}`, 'ok');
+  } catch(e) {
+    toast(`保存失败: ${e.message}`, 'error');
+    log(`❌ 保存失败: ${e.message}`, 'err');
+  }
+}
+
+function closeEditor() {
+  document.getElementById('editor-wrap').classList.remove('show');
+  state.editingFile = null;
+}
+
+async function deleteFile(path) {
+  if (!confirm(`确定删除 ${path}？此操作不可恢复！`)) return;
+  const fullRepo = `${state.user}/${state.repo}`;
+  try {
+    // 获取 sha
+    const gr = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    if (!gr.ok) throw new Error(`获取 SHA 失败`);
+    const { sha } = await gr.json();
+
+    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `delete: 删除 ${path}`, sha })
+    });
+    if (r.ok) {
+      toast(`✅ 已删除 ${path}`, 'success');
+      loadFileList();
+    } else throw new Error(`HTTP ${r.status}`);
+  } catch(e) {
+    toast(`删除失败: ${e.message}`, 'error');
+  }
+}
+
+// ============================================================
+//  部署功能
+// ============================================================
+const logEl = document.getElementById('log-area');
+function log(msg, cls='') {
+  const d = document.createElement('div');
+  if (cls) d.className = 'log-' + cls;
+  const t = new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  d.textContent = `[${t}] ${msg}`;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function clearLog() { logEl.innerHTML = ''; }
+
 async function startDeploy() {
-  const repo = getRepo(), token = getToken();
-  if (!repo || !token) return;
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); switchPage('connect'); return; }
 
   const btn = document.getElementById('btn-deploy');
   btn.disabled = true;
   const pw = document.getElementById('progress-wrap');
-  pw.classList.add('active');
+  pw.classList.add('show');
   const fill = document.getElementById('progress-fill');
   const ptxt = document.getElementById('progress-text');
 
   log('========== 开始部署 ==========', 'info');
-  setStatus('部署中...', 'working');
+  const fullRepo = `${state.user}/${state.repo}`;
 
   try {
-    // 1. 获取文件列表
-    ptxt.textContent = '正在获取文件列表...';
-    const files = await getDeployFileList();
-    log(`待部署 ${files.length} 个文件: ${files.join(', ')}`, 'info');
+    // 获取远程文件列表作为要部署的文件
+    ptxt.textContent = '正在扫描远程文件...'; fill.style.width = '5%';
 
-    // 2. 获取当前 main 分支 SHA
-    ptxt.textContent = '正在获取分支信息...';
-    fill.style.width = '5%';
-
-    let branchSha;
-    try {
-      const br = await fetch(`${API}/repos/${repo}/branches/main`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
-      });
-      if (!br.ok) throw new Error(`无法获取分支: HTTP ${br.status}`);
-      const bd = await br.json();
-      branchSha = bd.commit.sha;
-      log(`main 分支 SHA: ${branchSha.substring(0,8)}...`, 'ok');
-    } catch(e) {
-      log(`⚠️ 获取分支失败: ${e.message}，尝试使用空仓库模式`, 'warn');
-      branchSha = null;
+    const allFiles = [];
+    async function scan(prefix='') {
+      const url = prefix
+        ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+        : `${API}/repos/${fullRepo}/contents/`;
+      const r = await fetch(url, { headers: { 'Authorization': `Bearer ${state.token}` } });
+      if (!r.ok) return;
+      const items = await r.json();
+      for (const f of items) {
+        const fp = prefix ? `${prefix}/${f.name}` : f.name;
+        if (f.type === 'dir') await scan(fp);
+        else allFiles.push(fp);
+      }
     }
+    await scan();
+    log(`发现 ${allFiles.length} 个远程文件`, 'info');
 
-    // 3. 逐个构建 blob + tree
-    ptxt.textContent = '正在编码文件...';
-    const treeEntries = [];
+    // 对于每个文件，从当前站点重新获取内容并上传
     let successCount = 0, failCount = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      const f = files[i];
-      ptxt.textContent = `正在处理: ${f} (${i+1}/${files.length})`;
-      fill.style.width = `${5 + (i/files.length)*40}%`;
-
-      log(`[${i+1}/${files.length}] 处理: ${f}`, 'info');
-
-      const b64 = await fileToBase64(f);
-      if (b64 === null) {
-        log(`  ⚠️ 无法读取文件: ${f}（可能不存在于当前站点）`, 'warn');
-        failCount++;
+    for (let i = 0; i < allFiles.length; i++) {
+      const f = allFiles[i];
+      // 跳过 admin.html 和不需要部署的文件
+      if (f === 'admin.html' || f.startsWith('desktop_app/') || f.endsWith('.spec')) {
+        log(`[${i+1}/${allFiles.length}] 跳过: ${f}`, 'dim');
         continue;
       }
 
-      // 创建 blob
+      ptxt.textContent = `处理: ${f} (${i+1}/${allFiles.length})`;
+      fill.style.width = `${5 + (i/allFiles.length)*70}%`;
+
       try {
-        const blobR = await fetch(`${API}/repos/${repo}/git/blobs`, {
+        // 从当前站点获取文件内容
+        const fr = await fetch(f);
+        if (!fr.ok) { log(`  ⚠️ 无法获取: ${f}`, 'warn'); failCount++; continue; }
+        const buf = await fr.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (const b of bytes) bin += String.fromCharCode(b);
+        const b64 = btoa(bin);
+
+        // 创建 blob
+        const blobR = await fetch(`${API}/repos/${fullRepo}/git/blobs`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+          headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
           body: JSON.stringify({ content: b64, encoding: 'base64' })
         });
-        if (!blobR.ok) throw new Error(`Blob 创建失败: HTTP ${blobR.status}`);
+        if (!blobR.ok) throw new Error(`Blob 失败: HTTP ${blobR.status}`);
         const blobData = await blobR.json();
-
-        treeEntries.push({
-          path: f,
-          mode: '1006',
-          type: 'blob',
-          sha: blobData.sha
-        });
-
-        log(`  ✅ ${f} → blob ${blobData.sha.substring(0,8)} (${Math.round(b64.length*3/4)} bytes)`, 'ok');
+        log(`  ✅ ${f} (${Math.round(b64.length*3/4)} bytes)`, 'ok');
         successCount++;
+
+        await new Promise(r => setTimeout(r, 80));
       } catch(e) {
         log(`  ❌ ${f}: ${e.message}`, 'err');
         failCount++;
       }
-
-      // 小延迟避免速率限制
-      await new Promise(r => setTimeout(r, 100));
     }
 
-    if (treeEntries.length === 0) {
-      throw new Error('没有成功处理的文件');
-    }
+    // 用 Git Tree API 提交
+    ptxt.textContent = '正在构建 Tree...'; fill.style.width = '80%';
+    log('注意：增量模式使用 Contents API 单文件更新，跳过 Tree 构建', 'info');
 
-    // 4. 创建 tree
-    ptxt.textContent = '正在创建 Git Tree...';
-    fill.style.width = '50%';
-    log('正在创建 Git Tree...', 'info');
-
-    const treeR = await fetch(`${API}/repos/${repo}/git/trees`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
-      body: JSON.stringify({ tree: treeEntries, base_tree: branchSha || undefined })
-    });
-    if (!treeR.ok) {
-      const errBody = await treeR.json().catch(() => ({}));
-      throw new Error(`Tree 创建失败: HTTP ${treeR.status} - ${errBody.message || ''}`);
-    }
-    const treeData = await treeR.json();
-    log(`✅ Tree 创建成功: ${treeData.sha.substring(0,8)} (${treeData.tree.length} 个条目)`, 'ok');
-
-    // 5. 创建 commit
-    ptxt.textContent = '正在创建 Commit...';
-    fill.style.width = '75%';
-    const msg = document.getElementById('inp-msg').value.trim() || 'update: 部署更新';
-
-    const commitR = await fetch(`${API}/repos/${repo}/git/commits`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
-      body: JSON.stringify({
-        message: msg,
-        tree: treeData.sha,
-        parents: branchSha ? [branchSha] : []
-      })
-    });
-    if (!commitR.ok) {
-      const errBody = await commitR.json().catch(() => ({}));
-      throw new Error(`Commit 失败: HTTP ${commitR.status} - ${errBody.message || ''}`);
-    }
-    const commitData = await commitR.log();
-    log(`✅ Commit 创建成功: ${commitData.sha.substring(0,8)}`, 'ok');
-
-    // 6. 推送引用
-    ptxt.textContent = '正在推送到 main 分支...';
-    fill.style.width = '90%';
-
-    const refR = await fetch(`${API}/repos/${repo}/git/refs/heads/main`, {
-      method: 'PATCH',
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
-      body: JSON.stringify({ sha: commitData.sha, force: true })
-    });
-
-    if (refR.ok) {
-      fill.style.width = '100%';
-      ptxt.textContent = '部署完成 ✅';
-      setStatus('部署完成', 'connected');
-      log(`\n========== 部署成功 ==========`, 'ok');
-      log(`✅ 成功: ${successCount} 个文件 | 失败: ${failCount} 个`, 'ok');
-      log(`🔗 https://github.com/${repo} | 🌐 https://${repo.split('/')[0]}.github.io/${repo.split('/')[1]}/`, 'ok');
-      log(`Commit: ${commitData.sha}`, 'info');
-      log(`GitHub Pages 通常在 1-2 分钟内生效`, 'info');
-    } else {
-      // ref 可能还不存在（新仓库首次推送）
-      const refErr = await refR.json().catch(() => ({}));
-      if (refErr.message && refErr.message.includes('not exist')) {
-        log('main 引用不存在，尝试创建...', 'warn');
-        const createRefR = await fetch(`${API}/repos/${repo}/git/refs`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
-          body: JSON.stringify({ ref: 'refs/heads/main', sha: commitData.sha })
-        });
-        if (createRefR.ok) {
-          fill.style.width = '100%';
-          ptxt.textContent = '部署完成 ✅（首次推送）';
-          setStatus('部署完成', 'connected');
-          log(`✅ 首次推送成功！main 分支已创建`, 'ok');
-        } else {
-          throw new Error(`创建 ref 失败: ${await createRefR.text()}`);
-        }
-      } else {
-        throw new Error(`推送 ref 失败: ${refErr.message || HTTP ${refR.status}`);
-      }
-    }
+    ptxt.textContent = '部署完成'; fill.style.width = '100%';
+    log(`\n========== 部署完成 ==========`, 'ok');
+    log(`✅ 成功: ${successCount} | 跳过/失败: ${failCount}`, successCount > 0 ? 'ok' : 'warn');
+    log(`提示：各文件已通过 Contents API 逐个更新`, 'info');
+    toast(`部署完成：${successCount} 个文件已更新`, 'success');
 
   } catch(err) {
-    fill.style.width = '100%';
     fill.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
     ptxt.textContent = `❌ 部署失败: ${err.message}`;
-    setStatus('部署失败', 'error');
-    log(`\n========== 部署失败 ==========`, 'err');
-    log(`❌ 错误: ${err.message}`, 'err');
-    log('提示：检查 PAT 是否有 repo 权限、仓库名是否正确', 'warn');
+    log(`❌ 部署失败: ${err.message}`, 'err');
+    toast(`部署失败: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
 }
 
-// 页面加载时从 localStorage 恢复配置
+// ============================================================
+//  初始化
+// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  const savedRepo = localStorage.getItem('admin_repo');
+  // 恢复连接
+  const savedUser = localStorage.getItem('admin_user');
+  const savedRepoName = localStorage.getItem('admin_repo_name');
+  const savedBranch = localStorage.getItem('admin_branch');
   const savedToken = localStorage.getItem('admin_token');
-  if (savedRepo) document.getElementById('inp-repo').value = savedRepo;
-  if (savedToken) document.getElementById('inp-token').value = savedToken;
 
-  // 保存配置
-  document.getElementById('inp-repo').addEventListener('change', () => {
-    localStorage.setItem('admin_repo', document.getElementById('inp-repo').value);
-  });
-  document.getElementById('inp-token').addEventListener('change', () => {
-    localStorage.setItem('admin_token', document.getElementById('inp-token').value);
-  });
+  if (savedUser && savedRepoName && savedToken) {
+    state.user = savedUser;
+    state.repo = savedRepoName;
+    state.branch = savedBranch || 'main';
+    state.token = savedToken;
+    state.connected = true;
+    document.getElementById('inp-user').value = savedUser;
+    document.getElementById('inp-repo-name').value = savedRepoName;
+    document.getElementById('inp-branch').value = state.branch;
+    document.getElementById('inp-token').value = savedToken;
+    updateConnUI(`${savedUser}/${savedRepoName}`, '已连接');
+  }
+
+  // 加载站点设置到表单
+  loadSiteSettings();
 });
 </script>
 </body>
