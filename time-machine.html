@@ -142,22 +142,22 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 <body>
 
 <div class="top">
-  <div class="brand"><span class="logo">⏰</span> YANZIEN LAB · 时空研究所</div>
-  <h1>时空穿梭机 v3.0</h1>
-  <div class="sub">—— 穿越过去与未来，由你决定 ——</div>
+  <div class="brand"><span class="logo">⏰</span> <span data-tm="tm-brand">YANZIEN LAB · 时空研究所</span></div>
+  <h1 data-tm="tm-title">时空穿梭机 v3.0</h1>
+  <div class="sub" data-tm="tm-sub">—— 穿越过去与未来，由你决定 ——</div>
 </div>
 
 <!-- 主面板 -->
 <div class="panel" id="main">
-  <div class="ptitle">🚀 穿越到未来</div>
-  <div class="phint">选择你想穿越到「多久以后」。规则：穿越耗时 = 你选的时间（真的要等那么久哦）。</div>
+  <div class="ptitle" data-tm="tm-future-title">🚀 穿越到未来</div>
+  <div class="phint" data-tm="tm-future-hint">选择你想穿越到「多久以后」。规则：穿越耗时 = 你选的时间（真的要等那么久哦）。</div>
   <div class="opts">
     <button class="opt" data-t="5" data-u="seconds">5 秒后</button>
     <button class="opt" data-t="1" data-u="minutes">1 分钟后</button>
     <button class="opt" data-t="5" data-u="minutes">5 分钟后</button>
     <button class="opt" data-t="1" data-u="hours">1 小时后</button>
     <button class="opt" data-t="1" data-u="days">1 天后</button>
-    <button class="opt custom" onclick="toggleCustom()">⚙️ 自定义</button>
+    <button class="opt custom" data-tm="tm-custom-btn" onclick="toggleCustom()">⚙️ 自定义</button>
   </div>
   <div class="custom-row hidden" id="customRow">
     <input type="number" id="cval" min="1" max="999999" value="10">
@@ -165,11 +165,11 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
     <button class="go" onclick="startCustom()">开始穿越</button>
   </div>
 
-  <div class="divider">古 今 往 来</div>
+  <div class="divider" data-tm="tm-divider">古 今 往 来</div>
 
-  <div class="ptitle">🕰️ 穿越到过去？</div>
-  <div class="phint">过去藏着遗憾与秘密……但这项功能需要特权。</div>
-  <button class="past-btn" onclick="openVip()">查看「穿越到过去」详情 →</button>
+  <div class="ptitle" data-tm="tm-past-title">🕰️ 穿越到过去？</div>
+  <div class="phint" data-tm="tm-past-hint">过去藏着遗憾与秘密……但这项功能需要特权。</div>
+  <button class="past-btn" data-tm="tm-past-btn" onclick="openVip()">查看「穿越到过去」详情 →</button>
 </div>
 
 <!-- 穿越动画 -->
@@ -181,7 +181,7 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
     <div class="tlabel" id="tlabel">穿越中…</div>
   </div>
   <div class="prog-wrap">
-    <div class="prog-label"><span>⚠️ 时空不稳定</span><span id="pstate">折叠中</span></div>
+    <div class="prog-label"><span data-tm="tm-unstable">⚠️ 时空不稳定</span><span id="pstate">折叠中</span></div>
     <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
     <div class="prog-pct" id="ppct">0%</div>
   </div>
@@ -204,15 +204,15 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 <!-- 警告 -->
 <div class="panel" id="warn">
   <div class="w-ico">⚠️</div>
-  <h2>警告！</h2>
-  <p>中途退出穿越可能导致以下后果：</p>
+  <h2 data-tm="tm-warn-title">警告！</h2>
+  <p data-tm="tm-warn-desc">中途退出穿越可能导致以下后果：</p>
   <ul class="w-list">
-    <li>时空裂缝扩大</li>
-    <li>平行宇宙分裂</li>
-    <li>你变成两个你</li>
-    <li>蝴蝶效应引发第三次世界大战</li>
+    <li data-tm="tm-warn-1">时空裂缝扩大</li>
+    <li data-tm="tm-warn-2">平行宇宙分裂</li>
+    <li data-tm="tm-warn-3">你变成两个你</li>
+    <li data-tm="tm-warn-4">蝴蝶效应引发第三次世界大战</li>
   </ul>
-  <div class="w-q">确定要退出吗？</div>
+  <div class="w-q" data-tm="tm-warn-q">确定要退出吗？</div>
   <div class="w-acts">
     <button class="w-y" onclick="doAbort()">确定退出</button>
     <button class="w-n" onclick="show('travel')">继续穿越</button>
@@ -225,33 +225,33 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
     <button class="vip-x" onclick="closeVip()">×</button>
     <div style="text-align:center">
       <span class="vip-badge">👑 PREMIUM</span>
-      <div class="vip-title">穿越到过去 · 特权会员</div>
-      <div class="vip-sub">此功能需开通「时空特权会员」后方可使用</div>
+      <div class="vip-title" data-tm="tm-vip-title">穿越到过去 · 特权会员</div>
+      <div class="vip-sub" data-tm="tm-vip-sub">此功能需开通「时空特权会员」后方可使用</div>
       <div class="vip-feat">
-        <div>✅ 无限次穿越到任意过去时间点</div>
-        <div>✅ 自定义历史时刻（精确到秒）</div>
-        <div>✅ 改变历史轨迹（效果待观测）</div>
-        <div>✅ 优先客服 & 专属通道</div>
-        <div class="off">❌ 修复人生遗憾（研发中，敬请期待）</div>
+        <div data-tm="tm-feat-1">✅ 无限次穿越到任意过去时间点</div>
+        <div data-tm="tm-feat-2">✅ 自定义历史时刻（精确到秒）</div>
+        <div data-tm="tm-feat-3">✅ 改变历史轨迹（效果待观测）</div>
+        <div data-tm="tm-feat-4">✅ 优先客服 & 专属通道</div>
+        <div class="off" data-tm="tm-feat-5">❌ 修复人生遗憾（研发中，敬请期待）</div>
       </div>
       <div class="plans">
         <div class="plan hot">
           <div class="ribbon">🔥 限时特惠</div>
-          <div class="pn">首充体验</div>
+          <div class="pn" data-tm="tm-plan1-name">首充体验</div>
           <div class="pp"><small>¥</small>0.1</div>
-          <div class="pd">半个月 · 新用户专享</div>
+          <div class="pd" data-tm="tm-plan1-desc">半个月 · 新用户专享</div>
           <button onclick="pay()">立即开通</button>
         </div>
         <div class="plan">
-          <div class="pn">连续包月</div>
+          <div class="pn" data-tm="tm-plan2-name">连续包月</div>
           <div class="pp"><small>¥</small>5</div>
-          <div class="pd">每月自动续费</div>
+          <div class="pd" data-tm="tm-plan2-desc">每月自动续费</div>
           <button onclick="pay()">立即开通</button>
         </div>
         <div class="plan">
-          <div class="pn">年度尊享</div>
+          <div class="pn" data-tm="tm-plan3-name">年度尊享</div>
           <div class="pp"><small>¥</small>50</div>
-          <div class="pd">省 ¥10 · 最划算</div>
+          <div class="pd" data-tm="tm-plan3-desc">省 ¥10 · 最划算</div>
           <button onclick="pay()">立即开通</button>
         </div>
       </div>
@@ -264,18 +264,18 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
 <div class="vip-modal" id="payModal">
   <div class="vip-card" style="text-align:center">
     <button class="vip-x" onclick="closePay()">×</button>
-    <div class="pay-title">💳 请加 Young 微信付款</div>
-    <div class="pay-who">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
+    <div class="pay-title" data-tm="tm-pay-title">💳 请加 Young 微信付款</div>
+    <div class="pay-who" data-tm="tm-pay-who">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
     <div class="qr">
       <img src="assets/young-wechat.png" alt="Young微信好友二维码" onerror="this.parentNode.innerHTML='<div class=\'ph\'>📱 请加 Young 微信好友<br>付款后截图验证开通</div>'">
     </div>
-    <div class="pay-note">支持微信好友转账 / 扫码付款，金额以所选套餐为准</div>
-    <div class="pay-fine">* 本支付为真实有效支付（确信）</div>
+    <div class="pay-note" data-tm="tm-pay-note">支持微信好友转账 / 扫码付款，金额以所选套餐为准</div>
+    <div class="pay-fine" data-tm="tm-pay-fine">* 本支付为真实有效支付（确信）</div>
     <button class="vip-back" style="margin-top:16px" onclick="backToVip()">← 返回套餐</button>
   </div>
 </div>
 
-<div class="foot">yanzien's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
+<div class="foot" data-tm="tm-foot">yanzien's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
 
 <script>
 let timer=null,start=0,dur=0,abortable=false,curT=5,curU='seconds';
