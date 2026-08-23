@@ -122,14 +122,14 @@
       </button>
       <button class="fcard do" onclick="openDesktopOps()">
         <div class="ficon">🖥️</div>
-        <div class="fname">桌面操作合集</div>
-        <div class="fdesc">浏览器内模拟版 · 真实 EXE 见下方</div>
+        <div class="fname" data-do="do-card1-name">桌面操作合集</div>
+        <div class="fdesc" data-do="do-card1-desc">浏览器内模拟版 · 真实 EXE 见下方</div>
         <div class="ftags"><span>桌面特效</span><span>可复原</span></div>
       </button>
       <a class="fcard download" href="#desktop-exe" onclick="scrollToExe()">
         <div class="ficon">⬇️</div>
-        <div class="fname">桌面操控 EXE</div>
-        <div class="fdesc">真实操控你的桌面图标！重力/失重/打架…</div>
+        <div class="fname" data-do="do-card2-name">桌面操控 EXE</div>
+        <div class="fdesc" data-do="do-card2-desc">真实操控你的桌面图标！重力/失重/打架…</div>
         <div class="ftags"><span>真实生效</span><span>Windows</span><span class="warn">可复原</span></div>
       </a>
     </div>
@@ -143,11 +143,11 @@
         </div>
       </div>
       <ul class="exe-feat">
-        <li>🌍 <b>重力器</b>：图标像被地球吸引一样掉落堆叠</li>
-        <li>🛸 <b>失重器</b>：图标在桌面漂浮游动</li>
-        <li>🥊 <b>打架器</b>：图标互相追逐碰撞</li>
-        <li>🙈 <b>消失器</b>：图标躲到窗口后面</li>
-        <li>👆 <b>鼠标寻找器</b>：箭头实时指向鼠标</li>
+        <li data-do="do-feat-1">🌍 重力器：图标像被地球吸引一样掉落堆叠</li>
+        <li data-do="do-feat-2">🛸 失重器：图标在桌面漂浮游动</li>
+        <li data-do="do-feat-3">🥊 打架器：图标互相追逐碰撞</li>
+        <li data-do="do-feat-4">🙈 消失器：图标躲到窗口后面</li>
+        <li data-do="do-feat-5">👆 鼠标寻找器：箭头实时指向鼠标</li>
       </ul>
       <div class="exe-actions">
         <button class="btn btn-primary" data-home="exe-btn" onclick="downloadExe()">⬇ 下载 EXE（约 15MB）</button>
@@ -171,10 +171,10 @@
 <div id="do-modal" class="modal hidden">
   <div class="modal-card do-card">
     <button class="x" onclick="closeDesktopOps2('do-modal')">×</button>
-    <h3>🖥️ 桌面操作合集（浏览器模拟版）</h3>
-    <p class="muted">此版本仅在当前窗口内模拟，不影响真实桌面。要真实操控请下载 EXE。</p>
+    <h3 data-do="do-modal-title">🖥️ 桌面操作合集（浏览器模拟版）</h3>
+    <p class="muted" data-do="do-modal-desc">此版本仅在当前窗口内模拟，不影响真实桌面。要真实操控请下载 EXE。</p>
     <div class="do-grid" id="do-grid"></div>
-    <div class="do-foot">⚠️ 模拟效果仅限本窗口</div>
+    <div class="do-foot" data-do="do-modal-foot">⚠️ 模拟效果仅限本窗口</div>
   </div>
 </div>
 
