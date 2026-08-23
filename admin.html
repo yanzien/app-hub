@@ -514,9 +514,11 @@ function authHeaders() {
 }
 function decodeBase64(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
 function encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+// 路径按段编码：js/web-sync.js -> js/web-sync.js（不把 / 编码成 %2F，否则 GitHub 404）
+function encPath(p) { return p.split('/').map(encodeURIComponent).join('/'); }
 
 async function ghGet(path) {
-  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encPath(path)}`, {
     headers: authHeaders()
   });
   if (!r.ok) throw new Error(`获取 ${path} 失败: HTTP ${r.status}`);
@@ -526,7 +528,7 @@ async function ghGet(path) {
 async function ghSave(path, content, sha, message) {
   const body = { message: message || `update: ${path}`, content: encodeBase64(content) };
   if (sha) body.sha = sha;
-  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encPath(path)}`, {
     method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
   });
   if (!r.ok) throw new Error(`保存 ${path} 失败: HTTP ${r.status}`);
@@ -643,7 +645,7 @@ async function refreshDashboard() {
     let count = 0;
     const fullRepo = `${state.user}/${state.repo}`;
     const walk = async (prefix='') => {
-      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encPath(prefix)}`
                          : `${API}/repos/${fullRepo}/contents/`;
       const r = await fetch(url, { headers: authHeaders() });
       if (!r.ok) return;
@@ -954,7 +956,7 @@ async function loadFileList() {
     const fullRepo = `${state.user}/${state.repo}`;
     const allFiles = [];
     const walk = async (prefix='') => {
-      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encPath(prefix)}`
                          : `${API}/repos/${fullRepo}/contents/`;
       const r = await fetch(url, { headers: authHeaders() });
       if (!r.ok) return;
@@ -1031,7 +1033,7 @@ async function deleteFile(path) {
   if (!confirm(`确定删除 ${path}？此操作不可恢复！`)) return;
   try {
     const { sha } = await ghGet(path);
-    const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+    const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encPath(path)}`, {
       method: 'DELETE', headers: authHeaders(),
       body: JSON.stringify({ message: `delete: 删除 ${path}`, sha })
     });
@@ -1070,7 +1072,7 @@ async function startDeploy() {
     ptxt.textContent = '正在扫描文件...'; fill.style.width = '5%';
     const allFiles = [];
     const walk = async (prefix='') => {
-      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encPath(prefix)}`
                          : `${API}/repos/${fullRepo}/contents/`;
       const r = await fetch(url, { headers: authHeaders() });
       if (!r.ok) return;
