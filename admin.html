@@ -112,6 +112,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 }
 .card-title { font-size:16px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
 .card-desc { font-size:13px; color:var(--text2); margin-bottom:18px; }
+.subcard { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+.subcard-title { font-size:14px; font-weight:700; margin-bottom:12px; color:var(--text); display:flex; align-items:center; gap:6px; }
+.subcard .form-group { margin-bottom:12px; }
 
 /* ====== 状态标签 ====== */
 .status-tags { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
@@ -279,6 +282,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
       <div class="nav-item" data-page="desktopops" onclick="switchPage('desktopops')">
         <span class="nav-icon">🖥️</span> 桌面操作文案
       </div>
+      <div class="nav-item" data-page="tmend" onclick="switchPage('tmend')">
+        <span class="nav-icon">🏁</span> 穿越结尾语
+      </div>
     </div>
     <div class="nav-section">
       <div class="nav-label">高级</div>
@@ -337,6 +343,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
           <span class="status-tag info"><span class="status-dot"></span> 首页文案锚点 <span id="tag-home">0</span></span>
           <span class="status-tag info"><span class="status-dot"></span> 时光机锚点 <span id="tag-tm">0</span></span>
           <span class="status-tag info"><span class="status-dot"></span> 桌面操作锚点 <span id="tag-do">0</span></span>
+          <span class="status-tag info"><span class="status-dot"></span> 穿越结尾语 <span id="tag-tmend">0</span></span>
         </div>
       </div>
 
@@ -404,6 +411,19 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveDoText()">💾 保存桌面操作文案</button>
           <button class="btn btn-ghost" onclick="loadDoText()">↺ 重新加载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 穿越结尾语管理 ========== -->
+    <div class="page" id="page-tmend">
+      <div class="card">
+        <div class="card-title">🏁 穿越结尾语管理</div>
+        <div class="card-desc">编辑「穿越到未来 / 中途退出」结算页的动态文案（写入 <span class="kbd">js/tm-done.js</span>）。支持占位符：<span class="kbd">{t}</span> 时长、<span class="kbd">{h}</span> 天×24、<span class="kbd">{m}</span> 天×1440、<span class="kbd">{dur}</span> 格式化总耗时、<span class="kbd">{el}</span> 已穿越耗时。保存即推送 GitHub。</div>
+        <div id="tmend-fields"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveTmEnd()">💾 保存穿越结尾语</button>
+          <button class="btn btn-ghost" onclick="loadTmEnd()">↺ 重新加载</button>
         </div>
       </div>
     </div>
@@ -546,7 +566,7 @@ function switchPage(pageId) {
   if (page) page.classList.add('active');
   if (nav) nav.classList.add('active');
 
-  const titles = { dashboard:'概览', websync:'网页同步区', home:'首页文案', timemachine:'时光机文案', desktopops:'桌面操作文案', files:'文件管理', deploy:'发布 / 同步', connect:'连接 / 云端' };
+  const titles = { dashboard:'概览', websync:'网页同步区', home:'首页文案', timemachine:'时光机文案', desktopops:'桌面操作文案', tmend:'穿越结尾语', files:'文件管理', deploy:'发布 / 同步', connect:'连接 / 云端' };
   document.getElementById('topbar-title').textContent = titles[pageId] || '管理后台';
   document.getElementById('sidebar').classList.remove('open');
 
@@ -556,6 +576,7 @@ function switchPage(pageId) {
   if (pageId === 'home') loadHomeText();
   if (pageId === 'timemachine') loadTmText();
   if (pageId === 'desktopops') loadDoText();
+  if (pageId === 'tmend') loadTmEnd();
   if (pageId === 'dashboard') refreshDashboard();
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
@@ -676,6 +697,15 @@ async function refreshDashboard() {
       tmAnchors = (d2.content.match(/data-tm="/g) || []).length;
     } catch {}
     document.getElementById('tag-tm').textContent = tmAnchors;
+
+    // 穿越结尾语条数
+    let tmendCount = 0;
+    try {
+      const d3 = await ghGet('js/tm-done.js');
+      const m3 = d3.content.match(/const TM_DONE\s*=\s*(\{[\s\S]*?\});/);
+      if (m3) tmendCount = Object.keys(JSON.parse(m3[1])).length;
+    } catch {}
+    document.getElementById('tag-tmend').textContent = tmendCount;
   } catch(e) {}
 }
 
@@ -943,6 +973,67 @@ async function saveDoText() {
     doState.sha = await ghSave('index.html', content, doState.sha, 'update: 桌面操作文案');
     doState.content = content;
     toast('✅ 桌面操作文案已发布', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+//  穿越结尾语管理（js/tm-done.js）
+// ============================================================
+// 每个场景的字段定义：f=对象键，l=展示标签
+const TM_END_META = [
+  { key:'sec',    label:'穿越未来 · 短（≤5 秒）', fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'min1',   label:'穿越未来 · 1 分钟',      fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'min5',   label:'穿越未来 · 5 分钟',      fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'hours',  label:'穿越未来 · 小时',        fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'days',   label:'穿越未来 · 天',          fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'custom', label:'自定义穿越',             fields:[{f:'msg',l:'恭喜语'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+  { key:'abort',  label:'中途退出',               fields:[{f:'title',l:'标题'},{f:'det',l:'详情'},{f:'fact',l:'冷知识'}] },
+];
+let tmEndState = { content:'', sha:'', obj:{} };
+
+async function loadTmEnd() {
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); return; }
+  try {
+    const d = await ghGet('js/tm-done.js');
+    tmEndState.sha = d.sha; tmEndState.content = d.content;
+    const m = d.content.match(/const TM_DONE\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('未找到 TM_DONE 配置');
+    tmEndState.obj = JSON.parse(m[1]);
+    renderTmEndFields();
+    toast('✅ 已加载穿越结尾语配置', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderTmEndFields() {
+  const c = document.getElementById('tmend-fields');
+  c.innerHTML = TM_END_META.map(g => {
+    const entry = tmEndState.obj[g.key] || {};
+    const inner = g.fields.map(f => `
+      <div class="form-group">
+        <label class="form-label">${escHtml(f.l)} <span class="hint">(${escHtml(g.key)}.${escHtml(f.f)})</span></label>
+        <textarea class="form-textarea" id="te-${g.key}-${f.f}" rows="2">${escHtml(entry[f.f] || '')}</textarea>
+      </div>`).join('');
+    return `<div class="subcard"><div class="subcard-title">${escHtml(g.label)}</div><div class="form-grid">${inner}</div></div>`;
+    return `<div class="subcard"><div class="subcard-title">${escHtml(g.label)}</div>${inner}</div>`;
+  }).join('');
+}
+
+async function saveTmEnd() {
+  if (!tmEndState.obj || !Object.keys(tmEndState.obj).length) { toast('没有可保存的内容', 'error'); return; }
+  // 收集表单
+  TM_END_META.forEach(g => {
+    const entry = tmEndState.obj[g.key] || {};
+    g.fields.forEach(f => {
+      const el = document.getElementById(`te-${g.key}-${f.f}`);
+      if (el) entry[f.f] = el.value;
+    });
+    tmEndState.obj[g.key] = entry;
+  });
+  const newContent = `const TM_DONE = ${JSON.stringify(tmEndState.obj, null, 2)};\n`;
+  try {
+    tmEndState.sha = await ghSave('js/tm-done.js', newContent, tmEndState.sha, 'update: 穿越结尾语');
+    tmEndState.content = newContent;
+    toast('✅ 穿越结尾语已发布', 'success');
   } catch(e) { toast(e.message, 'error'); }
 }
 
