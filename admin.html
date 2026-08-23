@@ -273,6 +273,12 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
       <div class="nav-item" data-page="home" onclick="switchPage('home')">
         <span class="nav-icon">🏠</span> 首页文案
       </div>
+      <div class="nav-item" data-page="timemachine" onclick="switchPage('timemachine')">
+        <span class="nav-icon">⏰</span> 时光机文案
+      </div>
+      <div class="nav-item" data-page="desktopops" onclick="switchPage('desktopops')">
+        <span class="nav-icon">🖥️</span> 桌面操作文案
+      </div>
     </div>
     <div class="nav-section">
       <div class="nav-label">高级</div>
@@ -329,6 +335,8 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
         <div class="status-tags" id="status-tags">
           <span class="status-tag ok"><span class="status-dot ok"></span> 网页同步区 <span id="tag-ws">0</span></span>
           <span class="status-tag info"><span class="status-dot"></span> 首页文案锚点 <span id="tag-home">0</span></span>
+          <span class="status-tag info"><span class="status-dot"></span> 时光机锚点 <span id="tag-tm">0</span></span>
+          <span class="status-tag info"><span class="status-dot"></span> 桌面操作锚点 <span id="tag-do">0</span></span>
         </div>
       </div>
 
@@ -370,6 +378,32 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveHomeText()">💾 保存首页文案</button>
           <button class="btn btn-ghost" onclick="loadHomeText()">↺ 重新加载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 时光机文案 ========== -->
+    <div class="page" id="page-timemachine">
+      <div class="card">
+        <div class="card-title">⏰ 时光机文案</div>
+        <div class="card-desc">编辑时光机页面（<span class="kbd">time-machine.html</span>）真实展示的文案：标题、穿越说明、警告列表、VIP 会员弹窗、支付文案等。保存即推送 GitHub。</div>
+        <div id="tm-fields"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveTmText()">💾 保存时光机文案</button>
+          <button class="btn btn-ghost" onclick="loadTmText()">↺ 重新加载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 桌面操作文案 ========== -->
+    <div class="page" id="page-desktopops">
+      <div class="card">
+        <div class="card-title">🖥️ 桌面操作文案</div>
+        <div class="card-desc">编辑首页「桌面操作合集 / 桌面操控 EXE」卡片与弹窗的文案（写入 <span class="kbd">index.html</span>）。保存即推送 GitHub。</div>
+        <div id="do-fields"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveDoText()">💾 保存桌面操作文案</button>
+          <button class="btn btn-ghost" onclick="loadDoText()">↺ 重新加载</button>
         </div>
       </div>
     </div>
@@ -510,7 +544,7 @@ function switchPage(pageId) {
   if (page) page.classList.add('active');
   if (nav) nav.classList.add('active');
 
-  const titles = { dashboard:'概览', websync:'网页同步区', home:'首页文案', files:'文件管理', deploy:'发布 / 同步', connect:'连接 / 云端' };
+  const titles = { dashboard:'概览', websync:'网页同步区', home:'首页文案', timemachine:'时光机文案', desktopops:'桌面操作文案', files:'文件管理', deploy:'发布 / 同步', connect:'连接 / 云端' };
   document.getElementById('topbar-title').textContent = titles[pageId] || '管理后台';
   document.getElementById('sidebar').classList.remove('open');
 
@@ -518,6 +552,8 @@ function switchPage(pageId) {
   if (pageId === 'files') loadFileList();
   if (pageId === 'websync') loadWebSync();
   if (pageId === 'home') loadHomeText();
+  if (pageId === 'timemachine') loadTmText();
+  if (pageId === 'desktopops') loadDoText();
   if (pageId === 'dashboard') refreshDashboard();
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
@@ -621,13 +657,23 @@ async function refreshDashboard() {
     await walk();
     document.getElementById('stat-files').textContent = count;
 
-    // 首页锚点
-    let homeAnchors = 0;
+    // 首页 / 桌面操作锚点（同文件一次读取）
+    let homeAnchors = 0, doAnchors = 0;
     try {
       const d = await ghGet('index.html');
       homeAnchors = (d.content.match(/data-home="/g) || []).length;
+      doAnchors = (d.content.match(/data-do="/g) || []).length;
     } catch {}
     document.getElementById('tag-home').textContent = homeAnchors;
+    document.getElementById('tag-do').textContent = doAnchors;
+
+    // 时光机锚点
+    let tmAnchors = 0;
+    try {
+      const d2 = await ghGet('time-machine.html');
+      tmAnchors = (d2.content.match(/data-tm="/g) || []).length;
+    } catch {}
+    document.getElementById('tag-tm').textContent = tmAnchors;
   } catch(e) {}
 }
 
@@ -799,6 +845,102 @@ async function saveHomeText() {
     homeState.sha = await ghSave('index.html', content, homeState.sha, 'update: 首页文案');
     homeState.content = content;
     toast('✅ 首页文案已发布', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+//  时光机文案管理（time-machine.html → data-tm）
+// ============================================================
+let tmState = { content:'', sha:'', fields:[] };
+
+async function loadTmText() {
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); return; }
+  try {
+    const d = await ghGet('time-machine.html');
+    tmState.sha = d.sha; tmState.content = d.content;
+    const fields = [];
+    const re = /data-tm="([^"]+)"[^>]*>([\s\S]*?)<\/[a-z0-9]+>/gi;
+    let m;
+    while ((m = re.exec(d.content))) fields.push({ key: m[1], text: m[2] });
+    tmState.fields = fields;
+    renderTmFields();
+    toast(`已加载 ${fields.length} 处时光机文案`, 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderTmFields() {
+  const c = document.getElementById('tm-fields');
+  if (!tmState.fields.length) {
+    c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">未找到可编辑文案锚点</div></div>';
+    return;
+  }
+  c.innerHTML = tmState.fields.map((f, i) => `
+    <div class="form-group full">
+      <label class="form-label">${escHtml(f.key)} <span class="hint">(对应 time-machine.html 中该段文字)</span></label>
+      <textarea class="form-textarea" id="tf-${i}" rows="2">${escHtml(f.text)}</textarea>
+    </div>`).join('');
+}
+
+async function saveTmText() {
+  if (!tmState.fields.length) { toast('没有可保存的内容', 'error'); return; }
+  let content = tmState.content;
+  tmState.fields.forEach((f, i) => {
+    const newText = document.getElementById('tf-' + i).value;
+    const re = new RegExp(`(data-tm="${f.key}"[^>]*>)[\\s\\S]*?(</[a-z0-9]+>)`, 'i');
+    content = content.replace(re, `$1${newText}$2`);
+  });
+  try {
+    tmState.sha = await ghSave('time-machine.html', content, tmState.sha, 'update: 时光机文案');
+    tmState.content = content;
+    toast('✅ 时光机文案已发布', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+//  桌面操作文案管理（index.html → data-do）
+// ============================================================
+let doState = { content:'', sha:'', fields:[] };
+
+async function loadDoText() {
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); return; }
+  try {
+    const d = await ghGet('index.html');
+    doState.sha = d.sha; doState.content = d.content;
+    const fields = [];
+    const re = /data-do="([^"]+)"[^>]*>([\s\S]*?)<\/[a-z0-9]+>/gi;
+    let m;
+    while ((m = re.exec(d.content))) fields.push({ key: m[1], text: m[2] });
+    doState.fields = fields;
+    renderDoFields();
+    toast(`已加载 ${fields.length} 处桌面操作文案`, 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderDoFields() {
+  const c = document.getElementById('do-fields');
+  if (!doState.fields.length) {
+    c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🖥️</div><div class="empty-state-text">未找到可编辑文案锚点</div></div>';
+    return;
+  }
+  c.innerHTML = doState.fields.map((f, i) => `
+    <div class="form-group full">
+      <label class="form-label">${escHtml(f.key)} <span class="hint">(对应 index.html 中该段文字)</span></label>
+      <textarea class="form-textarea" id="df-${i}" rows="2">${escHtml(f.text)}</textarea>
+    </div>`).join('');
+}
+
+async function saveDoText() {
+  if (!doState.fields.length) { toast('没有可保存的内容', 'error'); return; }
+  let content = doState.content;
+  doState.fields.forEach((f, i) => {
+    const newText = document.getElementById('df-' + i).value;
+    const re = new RegExp(`(data-do="${f.key}"[^>]*>)[\\s\\S]*?(</[a-z0-9]+>)`, 'i');
+    content = content.replace(re, `$1${newText}$2`);
+  });
+  try {
+    doState.sha = await ghSave('index.html', content, doState.sha, 'update: 桌面操作文案');
+    doState.content = content;
+    toast('✅ 桌面操作文案已发布', 'success');
   } catch(e) { toast(e.message, 'error'); }
 }
 
