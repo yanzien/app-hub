@@ -45,7 +45,7 @@
       <div class="hero-text">
         <div class="hero-tag">MULTI-APP PLATFORM</div>
         <h1 class="hero-title">欢迎来到 <span class="grad">yanzien's App Hub</span></h1>
-        <p class="hero-sub">一个把你的网页、工具、奇思妙想全部收纳的多应用集成中心。<br>网页同步 · 恶搞神器 · 一键直达，全部装进这一页。</p>
+        <p class="hero-sub" data-home="hero-sub">一个把你的网页、工具、奇思妙想全部收纳的多应用集成中心。<br>网页同步 · 恶搞神器 · 一键直达，全部装进这一页。</p>
         <div class="hero-cta">
           <button class="btn btn-primary" onclick="navigateTo('websync')">浏览网页同步 →</button>
           <button class="btn btn-ghost" onclick="window.open('https://yanzien.github.io/home','_blank')">🔗 一键直达官网</button>
@@ -89,7 +89,7 @@
   <section id="section-websync" class="sec">
     <div class="sec-head">
       <h2 class="h2">🌐 网页同步区</h2>
-      <p>这里汇集了部署在 GitHub Pages 上的所有网页应用，点击即可在应用内打开体验。前 4 个为重点推荐。</p>
+      <p data-home="ws-desc">这里汇集了部署在 GitHub Pages 上的所有网页应用，点击即可在应用内打开体验。前 4 个为重点推荐。</p>
     </div>
     <div class="repo-grid" id="repo-grid"></div>
   </section>
@@ -98,7 +98,7 @@
   <section id="section-serious" class="sec">
     <div class="sec-head">
       <h2 class="h2">📋 正经应用</h2>
-      <p>这里将来会放一些正经有用的应用程序（大概吧）。</p>
+      <p data-home="serious-desc">这里将来会放一些正经有用的应用程序（大概吧）。</p>
     </div>
     <div class="empty-state">
       <div class="empty-ico">🔧</div>
@@ -111,7 +111,7 @@
   <section id="section-fun" class="sec">
     <div class="sec-head">
       <h2 class="h2">🎮 不正经应用</h2>
-      <p>警告：以下应用可能毫无用处，但绝对有趣！使用后果自负 🤪</p>
+      <p data-home="fun-desc">警告：以下应用可能毫无用处，但绝对有趣！使用后果自负 🤪</p>
     </div>
     <div class="fun-grid">
       <button class="fcard tm" onclick="location.href='time-machine.html'">
@@ -139,7 +139,7 @@
         <span class="exe-badge">EXE</span>
         <div>
           <h3>桌面操控器 · 真实版</h3>
-          <p>真正的 Windows 桌面图标操控：重力掉落、太空失重、互相打架、躲猫猫、鼠标寻找。全部实时作用于你真实的桌面图标，一键复原。</p>
+          <p data-home="exe-desc">真正的 Windows 桌面图标操控：重力掉落、太空失重、互相打架、躲猫猫、鼠标寻找。全部实时作用于你真实的桌面图标，一键复原。</p>
         </div>
       </div>
       <ul class="exe-feat">
@@ -150,7 +150,7 @@
         <li>👆 <b>鼠标寻找器</b>：箭头实时指向鼠标</li>
       </ul>
       <div class="exe-actions">
-        <button class="btn btn-primary" onclick="downloadExe()">⬇ 下载 EXE（约 30MB）</button>
+        <button class="btn btn-primary" data-home="exe-btn" onclick="downloadExe()">⬇ 下载 EXE（约 15MB）</button>
         <span class="exe-note">需 Windows 10/11 · 首次运行请允许</span>
       </div>
     </div>
