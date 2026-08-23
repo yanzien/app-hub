@@ -125,8 +125,6 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 .status-tag.info { background:var(--info-bg); color:var(--info); }
 .status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
 .status-dot.ok { background:var(--success); }
-.status-dot.warn { background:var(--warning); }
-.status-dot.err { background:var(--danger); }
 
 /* ====== 表单 ====== */
 .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
@@ -162,13 +160,13 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 .btn:disabled { opacity:.5; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
 .btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
 
-/* ====== 文件管理器 ====== */
+/* ====== 文件/仓库表格 ====== */
 .file-table { width:100%; border-collapse:collapse; }
 .file-table th {
   text-align:left; padding:10px 14px; font-size:12px; font-weight:700; color:var(--text2);
   text-transform:uppercase; letter-spacing:.5px; border-bottom:2px solid var(--border);
 }
-.file-table td { padding:10px 14px; font-size:13.5px; border-bottom:1px solid var(--border); }
+.file-table td { padding:10px 14px; font-size:13.5px; border-bottom:1px solid var(--border); vertical-align:middle; }
 .file-table tr:hover td { background:var(--primary-light); }
 .file-icon { font-size:18px; }
 .file-name { font-weight:600; color:var(--primary); cursor:pointer; }
@@ -209,9 +207,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 .progress-text { font-size:12px; color:var(--text2); margin-top:6px; text-align:center; }
 
 /* ====== 连接向导 ====== */
-.connect-wizard {
-  max-width:480px; margin:80px auto 0; text-align:center;
-}
+.connect-wizard { max-width:480px; margin:80px auto 0; text-align:center; }
 .connect-wizard-icon { font-size:48px; margin-bottom:16px; }
 .connect-wizard h2 { font-size:22px; margin-bottom:8px; }
 .connect-wizard p { color:var(--text2); font-size:14px; margin-bottom:24px; }
@@ -225,9 +221,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
   .form-grid { grid-template-columns:1fr; }
   .content { padding:16px; }
 }
-@media(min-width: 901px) {
-  .mobile-toggle { display:none !important; }
-}
+@media(min-width: 901px) { .mobile-toggle { display:none !important; } }
 .mobile-toggle {
   display:flex; align-items:center; justify-content:center; width:36px; height:36px;
   border:1px solid var(--border); background:var(--card); border-radius:8px;
@@ -250,17 +244,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 .empty-state-icon { font-size:48px; margin-bottom:12px; }
 .empty-state-text { font-size:14px; }
 
-/* ====== 自定义按钮编辑 ====== */
-.custom-btn-list { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
-.custom-btn-item {
-  display:flex; align-items:center; gap:8px; padding:10px 14px;
-  background:var(--bg); border:1px solid var(--border); border-radius:10px;
-}
-.custom-btn-item input { flex:1; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; }
-.custom-btn-item .btn-remove {
-  width:28px; height:28px; border:none; background:var(--danger-bg); color:var(--danger);
-  border-radius:6px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;
-}
+/* ====== 仓库卡片编辑中的预览标签 ====== */
+.repo-badge-row { display:flex; gap:8px; align-items:center; }
+.kbd { font-family:monospace; font-size:11px; background:#eef1ff; color:var(--primary); padding:2px 6px; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -268,7 +254,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 <!-- ====== 侧边栏 ====== -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="sidebar-logo">⚙️</span>
+    <span class="sidebar-logo">🚀</span>
     <div>
       <div class="sidebar-title">管理后台</div>
       <div class="sidebar-subtitle">yanzien's App Hub</div>
@@ -277,18 +263,24 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 
   <nav class="sidebar-nav" id="sidebar-nav">
     <div class="nav-section">
-      <div class="nav-label">主导航</div>
+      <div class="nav-label">内容管理</div>
       <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
         <span class="nav-icon">📊</span> 概览
       </div>
-      <div class="nav-item" data-page="settings" onclick="switchPage('settings')">
-        <span class="nav-icon">⚙️</span> 站点设置
+      <div class="nav-item" data-page="websync" onclick="switchPage('websync')">
+        <span class="nav-icon">🌐</span> 网页同步区
       </div>
+      <div class="nav-item" data-page="home" onclick="switchPage('home')">
+        <span class="nav-icon">🏠</span> 首页文案
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">高级</div>
       <div class="nav-item" data-page="files" onclick="switchPage('files')">
         <span class="nav-icon">📁</span> 文件管理
       </div>
       <div class="nav-item" data-page="deploy" onclick="switchPage('deploy')">
-        <span class="nav-icon">🚀</span> 部署管理
+        <span class="nav-icon">🚀</span> 发布 / 同步
       </div>
     </div>
     <div class="nav-section">
@@ -316,129 +308,77 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
       <div class="topbar-title" id="topbar-title">概览</div>
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-sm btn-primary" onclick="switchPage('deploy')">🚀 部署</button>
+      <button class="btn btn-sm btn-primary" onclick="switchPage('deploy')">🚀 发布</button>
       <button class="btn btn-sm btn-ghost" onclick="window.open('index.html','_blank')">🌐 查看站点</button>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- ========== 页面：概览 ========== -->
+    <!-- ========== 概览 ========== -->
     <div class="page active" id="page-dashboard">
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-card"><div class="stat-value blue" id="stat-files">-</div><div class="stat-label">文件 / 项目</div></div>
-        <div class="stat-card"><div class="stat-value green" id="stat-deploys">-</div><div class="stat-label">已部署</div></div>
-        <div class="stat-card"><div class="stat-value orange" id="stat-config">✓</div><div class="stat-label">已配置</div></div>
-        <div class="stat-card"><div class="stat-value purple" id="stat-default">默认</div><div class="stat-label">站点/仓库</div></div>
+        <div class="stat-card"><div class="stat-value blue" id="stat-repos">-</div><div class="stat-label">同步仓库数</div></div>
+        <div class="stat-card"><div class="stat-value green" id="stat-featured">-</div><div class="stat-label">推荐仓库</div></div>
+        <div class="stat-card"><div class="stat-value orange" id="stat-files">-</div><div class="stat-label">仓库文件总数</div></div>
+        <div class="stat-card"><div class="stat-value purple" id="stat-repo">app-hub</div><div class="stat-label">当前仓库</div></div>
       </div>
 
       <div class="card">
-        <div class="card-title">📈 状态分布</div>
+        <div class="card-title">📈 内容状态</div>
         <div class="status-tags" id="status-tags">
-          <span class="status-tag ok"><span class="status-dot ok"></span> 已就绪 0</span>
-          <span class="status-tag info"><span class="status-dot warn"></span> 进行中 0</span>
-          <span class="status-tag err"><span class="status-dot err"></span> 失败 0</span>
-          <span class="status-tag warn"><span class="status-dot"></span> 待部署 0</span>
+          <span class="status-tag ok"><span class="status-dot ok"></span> 网页同步区 <span id="tag-ws">0</span></span>
+          <span class="status-tag info"><span class="status-dot"></span> 首页文案锚点 <span id="tag-home">0</span></span>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">👥 访问量</div>
-        <div class="card-desc">站点已接入 不子(busanzhi) 免费计数器，实时显示站内访客数与浏览量。无需注册、无需服务器。</div>
-        <div class="card-desc" style="margin-top:8px;font-size:12px;">
-          如需详细访问统计/历史记录，可在「设置 / 云端」中接入 Umami 等隐私分析（可选）。
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-desc" style="font-size:13px;">
-          所有修改保存后即提交至 GitHub 仓库并自动通过 GitHub Pages 发布，访客立刻看到更新。
+        <div class="card-desc" style="font-size:13px;margin-bottom:0">
+          本后台直接编辑你网站<span class="kbd">真实内容</span>：<br>
+          ① <b>网页同步区</b> — 增删改首页展示的 GitHub 仓库卡片（写入 <span class="kbd">js/web-sync.js</span>）<br>
+          ② <b>首页文案</b> — 修改首页实际展示的文字（写入 <span class="kbd">index.html</span>）<br>
+          所有修改保存后即提交 GitHub 并通过 Pages 实时发布。
         </div>
       </div>
     </div>
 
-    <!-- ========== 页面：站点设置 ========== -->
-    <div class="page" id="page-settings">
+    <!-- ========== 网页同步区管理 ========== -->
+    <div class="page" id="page-websync">
       <div class="card">
-        <div class="card-title">🌐 站点设置</div>
-        <div class="card-desc">保存后同步到 GitHub（云端），前台实时生效。</div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">站点名称（导航/页脚）</label>
-            <input class="form-input" id="set-site-name" placeholder="yanzien">
-          </div>
-          <div class="form-group">
-            <label class="form-label">浏览器标题（&lt;title&gt;）</label>
-            <input class="form-input" id="set-site-title" placeholder="yanzien - 个人官网">
-          </div>
-          <div class="form-group full">
-            <label class="form-label">首页公告 <span class="hint">(留空不显示)</span></label>
-            <textarea class="form-textarea" id="set-announcement" rows="2" placeholder="🎉 新版BUG已修，快来试用吧！"></textarea>
-          </div>
-          <div class="form-group full">
-            <label class="form-label">首页副标题</label>
-            <input class="form-input" id="set-subtitle" placeholder="你好，我是 yanzien">
-          </div>
-          <div class="form-group">
-            <label class="form-label">首页主标题文字</label>
-            <input class="form-input" id="set-main-title" placeholder="查看作品">
-          </div>
-          <div class="form-group">
-            <label class="form-label">首页副标题文字</label>
-            <input class="form-input" id="set-main-subtitle" placeholder="联系我">
-          </div>
+        <div class="card-title">🌐 网页同步区管理</div>
+        <div class="card-desc">管理首页「网页同步区」展示的 GitHub 仓库卡片。修改直接写入 <span class="kbd">js/web-sync.js</span> 并发布，前台实时生效。</div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn btn-primary" onclick="showRepoForm(null)">＋ 添加仓库</button>
+          <button class="btn btn-ghost" onclick="loadWebSync()">↺ 重新加载</button>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🔘 首页自定义按钮</div>
-        <div class="card-desc">如果下方添加了按钮，首页将优先显示这些按钮；留空则用上方的「主/次按钮」。</div>
-        <div class="custom-btn-list" id="custom-btn-list"></div>
-        <button class="btn btn-sm btn-ghost" style="margin-top:10px" onclick="addCustomBtn()">+ 添加按钮</button>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📬 联系方式 & 社交链接</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">邮箱</label>
-            <input class="form-input" id="set-email" placeholder="yanzien2013@163.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">GitHub</label>
-            <input class="form-input" id="set-github" placeholder="https://github.com/yanzien">
-          </div>
-          <div class="form-group">
-            <label class="form-label">微信</label>
-            <input class="form-input" id="set-wechat" placeholder="Young（QQ同号）">
-          </div>
-          <div class="form-group">
-            <label class="form-label">其他</label>
-            <input class="form-input" id="set-other" placeholder="">
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📇 联系方式自定义卡片</div>
-        <div class="card-desc">在联系方式区域额外展示卡片，内容支持 Markdown（可放二维码、社交链接等）。</div>
-        <div class="form-group full">
-          <textarea class="form-textarea" id="set-contact-card" rows="3" placeholder="可选：自定义联系卡片内容..."></textarea>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveSiteSettings()">💾 保存设置</button>
-        <button class="btn btn-ghost" onclick="loadSiteSettings()">↺ 重置</button>
+        <div class="editor-wrap" id="repo-form"></div>
+        <table class="file-table" id="repo-table" style="margin-top:16px">
+          <thead><tr><th>图标</th><th>名称</th><th>仓库</th><th>推荐</th><th>操作</th></tr></thead>
+          <tbody id="repo-tbody">
+            <tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">请先连接 GitHub 仓库</div></div></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- ========== 页面：文件管理 ========== -->
+    <!-- ========== 首页文案 ========== -->
+    <div class="page" id="page-home">
+      <div class="card">
+        <div class="card-title">🏠 首页文案</div>
+        <div class="card-desc">编辑首页真实展示的文字（对应 <span class="kbd">index.html</span> 中的对应段落）。保存即推送 GitHub。</div>
+        <div id="home-fields"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveHomeText()">💾 保存首页文案</button>
+          <button class="btn btn-ghost" onclick="loadHomeText()">↺ 重新加载</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 文件管理 ========== -->
     <div class="page" id="page-files">
       <div class="card">
         <div class="card-title">📁 远程文件列表</div>
-        <div class="card-desc">点击文件名可在线编辑内容并直接保存到 GitHub。</div>
+        <div class="card-desc">点击文件名可在线编辑源码并直接保存到 GitHub（高级用法）。</div>
         <table class="file-table" id="file-table">
           <thead><tr><th>文件</th><th>大小</th><th>操作</th></tr></thead>
           <tbody id="file-tbody">
@@ -447,7 +387,6 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
         </table>
       </div>
 
-      <!-- 编辑器 -->
       <div class="editor-wrap" id="editor-wrap">
         <div class="editor-bar">
           <span class="editor-path" id="editor-path"></span>
@@ -460,19 +399,19 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
       </div>
     </div>
 
-    <!-- ========== 页面：部署管理 ========== -->
+    <!-- ========== 发布 / 同步 ========== -->
     <div class="page" id="page-deploy">
       <div class="card">
-        <div class="card-title">🚀 一键部署</div>
-        <div class="card-desc">将当前项目所有文件上传到 GitHub 仓库的 main 分支。支持增量更新。</div>
+        <div class="card-title">🚀 发布 / 同步</div>
+        <div class="card-desc">将仓库内全部网页文件重新推送到 GitHub（触发 GitHub Pages 重新构建发布）。各内容页的修改会自动保存发布，此按钮用于「整站重新发布」。</div>
 
         <div class="form-group">
           <label class="form-label">提交信息</label>
-          <input class="form-input" id="deploy-msg" value="update: 部署更新" placeholder="update: 部署更新">
+          <input class="form-input" id="deploy-msg" value="publish: 整站发布" placeholder="publish: 整站发布">
         </div>
 
         <div class="btn-row">
-          <button class="btn btn-primary" id="btn-deploy" onclick="startDeploy()">🚀 开始部署</button>
+          <button class="btn btn-primary" id="btn-deploy" onclick="startDeploy()">🚀 开始发布</button>
           <button class="btn btn-ghost" onclick="clearLog()">🗑️ 清空日志</button>
         </div>
 
@@ -488,7 +427,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
       </div>
     </div>
 
-    <!-- ========== 页面：连接/云端 ========== -->
+    <!-- ========== 连接/云端 ========== -->
     <div class="page" id="page-connect">
       <div class="connect-wizard" id="connect-form">
         <div class="connect-wizard-icon">🔗</div>
@@ -511,7 +450,7 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
           <div class="form-group">
             <label class="form-label">Personal Access Token</label>
             <input class="form-input" type="password" id="inp-token" placeholder="ghp_xxxxxxxxxxxx">
-            <div style="font-size:11px;color:var(--text3);margin-top:4px;">Token 仅保存在你的浏览器本地（localStorage），用于向 GitHub 提交内容，需要 repo 权限。详见 README。</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;">Token 仅保存在你的浏览器本地（localStorage），用于向 GitHub 提交内容，需要 repo 权限。</div>
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="connectGitHub()">连接</button>
         </div>
@@ -527,15 +466,41 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 // ============================================================
 const API = 'https://api.github.com';
 let state = {
-  user: '', repo: '', token: '', branch: 'main',
+  user: '', repo: 'app-hub', token: '', branch: 'main',
   connected: false,
   remoteFiles: [],
   editingFile: null,
-  deployStats: { total: 0, ok: 0, fail: 0, pending: 0 },
 };
 
 // ============================================================
-//  导航 & 页面切换
+//  GitHub API 辅助
+// ============================================================
+function authHeaders() {
+  return { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' };
+}
+function decodeBase64(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
+function encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
+async function ghGet(path) {
+  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+    headers: authHeaders()
+  });
+  if (!r.ok) throw new Error(`获取 ${path} 失败: HTTP ${r.status}`);
+  const d = await r.json();
+  return { content: decodeBase64(d.content), sha: d.sha };
+}
+async function ghSave(path, content, sha, message) {
+  const body = { message: message || `update: ${path}`, content: encodeBase64(content) };
+  if (sha) body.sha = sha;
+  const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+    method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`保存 ${path} 失败: HTTP ${r.status}`);
+  return (await r.json()).content.sha;
+}
+
+// ============================================================
+//  导航
 // ============================================================
 function switchPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -545,25 +510,18 @@ function switchPage(pageId) {
   if (page) page.classList.add('active');
   if (nav) nav.classList.add('active');
 
-  const titles = { dashboard:'概览', settings:'站点设置', files:'文件管理', deploy:'部署管理', connect:'连接 / 云端' };
+  const titles = { dashboard:'概览', websync:'网页同步区', home:'首页文案', files:'文件管理', deploy:'发布 / 同步', connect:'连接 / 云端' };
   document.getElementById('topbar-title').textContent = titles[pageId] || '管理后台';
-
-  // 关闭移动端侧边栏
   document.getElementById('sidebar').classList.remove('open');
 
-  // 页面特定逻辑
-  if (pageId === 'files' && state.connected) loadFileList();
-  if (pageId === 'dashboard' && state.connected) refreshDashboard();
-  if (pageId === 'settings') loadSiteSettings();
+  if (!state.connected) return;
+  if (pageId === 'files') loadFileList();
+  if (pageId === 'websync') loadWebSync();
+  if (pageId === 'home') loadHomeText();
+  if (pageId === 'dashboard') refreshDashboard();
 }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-// ============================================================
-//  Toast 提示
-// ============================================================
 function toast(msg, type='info') {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
@@ -588,9 +546,7 @@ async function connectGitHub() {
 
   try {
     log(`正在连接 ${fullRepo}...`, 'info');
-    const r = await fetch(`${API}/repos/${fullRepo}`, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
-    });
+    const r = await fetch(`${API}/repos/${fullRepo}`, { headers: authHeaders() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
 
@@ -602,7 +558,7 @@ async function connectGitHub() {
 
     updateConnUI(fullRepo, data.default_branch);
     toast(`✅ 已连接 ${fullRepo}`, 'success');
-    log(`✅ 连接成功！${data.full_name} ⭐${data.stargazers_count}`, 'ok');
+    log(`✅ 连接成功！${data.full_name}`, 'ok');
     switchPage('dashboard');
   } catch(e) {
     toast(`❌ 连接失败: ${e.message}`, 'error');
@@ -612,7 +568,7 @@ async function connectGitHub() {
 
 function disconnect() {
   state.connected = false;
-  state.user = ''; state.repo = ''; state.token = '';
+  state.user = ''; state.repo = 'app-hub'; state.token = '';
   localStorage.removeItem('admin_user');
   localStorage.removeItem('admin_repo_name');
   localStorage.removeItem('admin_branch');
@@ -621,221 +577,254 @@ function disconnect() {
   switchPage('connect');
   toast('已断开连接', 'info');
 }
-
 function updateConnUI(repo, status) {
   document.getElementById('repo-display').textContent = repo;
   document.getElementById('conn-display').textContent = status || '已连接';
 }
 
 // ============================================================
-//  概览仪表盘
+//  概览
 // ============================================================
 async function refreshDashboard() {
   if (!state.connected) return;
-  const fullRepo = `${state.user}/${state.repo}`;
   try {
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/`, {
-      headers: { 'Authorization': `Bearer ${state.token}` }
-    });
-    if (!r.ok) return;
-    const items = await r.json();
-    let count = 0;
-    async function walk(list) {
-      for (const f of list) {
-        if (f.type === 'dir') {
-          const sr = await fetch(`${API}/repos/${fullRepo}/contents/${f.path}`, {
-            headers: { 'Authorization': `Bearer ${state.token}` }
-          });
-          if (sr.ok) walk(await sr.json());
-        } else count++;
+    // 读取网页同步区
+    let repoCount = 0, featured = 0;
+    try {
+      const d = await ghGet('js/web-sync.js');
+      const m = d.content.match(/const GITHUB_REPOS\s*=\s*(\[[\s\S]*?\n\]);/);
+      if (m) {
+        const repos = (new Function('return ' + m[1]))();
+        repoCount = repos.length;
+        featured = repos.filter(r => r.featured).length;
       }
-    }
-    await walk(items);
+    } catch {}
+    document.getElementById('stat-repos').textContent = repoCount;
+    document.getElementById('stat-featured').textContent = featured;
+    document.getElementById('tag-ws').textContent = repoCount;
+
+    // 文件总数
+    let count = 0;
+    const fullRepo = `${state.user}/${state.repo}`;
+    const walk = async (prefix='') => {
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+                         : `${API}/repos/${fullRepo}/contents/`;
+      const r = await fetch(url, { headers: authHeaders() });
+      if (!r.ok) return;
+      const items = await r.json();
+      for (const f of items) {
+        const fp = prefix ? `${prefix}/${f.name}` : f.name;
+        if (f.type === 'dir') await walk(fp);
+        else count++;
+      }
+    };
+    await walk();
     document.getElementById('stat-files').textContent = count;
 
-    // 更新状态标签
-    const tags = document.getElementById('status-tags');
-    tags.innerHTML = `
-      <span class="status-tag ok"><span class="status-dot ok"></span> 已就绪 ${count}</span>
-      <span class="status-tag info"><span class="status-dot warn"></span> 进行中 0</span>
-      <span class="status-tag err"><span class="status-dot err"></span> 失败 0</span>
-      <span class="status-tag warn"><span class="status-dot"></span> 待部署 0</span>`;
+    // 首页锚点
+    let homeAnchors = 0;
+    try {
+      const d = await ghGet('index.html');
+      homeAnchors = (d.content.match(/data-home="/g) || []).length;
+    } catch {}
+    document.getElementById('tag-home').textContent = homeAnchors;
   } catch(e) {}
 }
 
 // ============================================================
-//  站点设置（localStorage + 可选推送到 GitHub）
+//  网页同步区管理
 // ============================================================
-const SETTINGS_KEY = 'site_settings';
+let wsState = { content:'', sha:'', repos:[] };
 
-function getDefaultSettings() {
-  return {
-    siteName: 'yanzien',
-    siteTitle: "yanzien's App Hub",
-    announcement: '',
-    subtitle: '你好，我是 yanzien',
-    mainTitle: '查看作品',
-    mainSubtitle: '联系我',
-    customButtons: [],
-    email: 'yanzien2013@163.com',
-    github: 'https://github.com/yanzien',
-    wechat: 'Young（QQ同号）',
-    other: '',
-    contactCard: '',
-  };
-}
-
-function getSettings() {
+async function loadWebSync() {
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); return; }
   try {
-    const s = localStorage.getItem(SETTINGS_KEY);
-    return s ? { ...getDefaultSettings(), ...JSON.parse(s) } : getDefaultSettings();
-  } catch { return getDefaultSettings(); }
-}
-
-function loadSiteSettings() {
-  const s = getSettings();
-  document.getElementById('set-site-name').value = s.siteName;
-  document.getElementById('set-site-title').value = s.siteTitle;
-  document.getElementById('set-announcement').value = s.announcement;
-  document.getElementById('set-subtitle').value = s.subtitle;
-  document.getElementById('set-main-title').value = s.mainTitle;
-  document.getElementById('set-main-subtitle').value = s.mainSubtitle;
-  document.getElementById('set-email').value = s.email;
-  document.getElementById('set-github').value = s.github;
-  document.getElementById('set-wechat').value = s.wechat;
-  document.getElementById('set-other').value = s.other;
-  document.getElementById('set-contact-card').value = s.contactCard;
-  renderCustomButtons(s.customButtons);
-}
-
-function saveSiteSettings() {
-  const s = {
-    siteName: document.getElementById('set-site-name').value.trim(),
-    siteTitle: document.getElementById('set-site-title').value.trim(),
-    announcement: document.getElementById('set-announcement').value.trim(),
-    subtitle: document.getElementById('set-subtitle').value.trim(),
-    mainTitle: document.getElementById('set-main-title').value.trim(),
-    mainSubtitle: document.getElementById('set-main-subtitle').value.trim(),
-    customButtons: getCustomButtonsData(),
-    email: document.getElementById('set-email').value.trim(),
-    github: document.getElementById('set-github').value.trim(),
-    wechat: document.getElementById('set-wechat').value.trim(),
-    other: document.getElementById('set-other').value.trim(),
-    contactCard: document.getElementById('set-contact-card').value.trim(),
-  };
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-  toast('✅ 设置已保存（浏览器本地）', 'success');
-
-  // 如果已连接 GitHub，询问是否推送
-  if (state.connected && confirm('是否同时将设置同步到 GitHub？（会创建/更新 site-settings.json）')) {
-    pushSettingsToGithub(s);
-  }
-}
-
-async function pushSettingsToGithub(s) {
-  try {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(s, null, 2))));
-    const path = 'site-settings.json';
-    const fullRepo = `${state.user}/${state.repo}`;
-
-    // 获取现有 sha
-    let sha = null;
-    try {
-      const gr = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
-        headers: { 'Authorization': `Bearer ${state.token}` }
-      });
-      if (gr.ok) sha = (await gr.json()).sha;
-    } catch {}
-
-    const body = { message: 'update: 站点设置', content };
-    if (sha) body.sha = sha;
-
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
-      body: JSON.stringify(body)
-    });
-    if (r.ok) {
-      toast('✅ 设置已同步到 GitHub', 'success');
-    } else {
-      throw new Error(`HTTP ${r.status}`);
-    }
+    const d = await ghGet('js/web-sync.js');
+    wsState.sha = d.sha; wsState.content = d.content;
+    const m = d.content.match(/const GITHUB_REPOS\s*=\s*(\[[\s\S]*?\n\]);/);
+    if (!m) throw new Error('未找到 GITHUB_REPOS 数组');
+    wsState.repos = (new Function('return ' + m[1]))();
+    renderRepos();
+    toast(`已加载 ${wsState.repos.length} 个仓库`, 'success');
   } catch(e) {
-    toast(`同步失败: ${e.message}`, 'error');
+    toast(e.message, 'error');
+    log(`加载网页同步区失败: ${e.message}`, 'err');
   }
 }
 
-// ---- 自定义按钮 ----
-function renderCustomButtons(btns) {
-  const container = document.getElementById('custom-btn-list');
-  container.innerHTML = '';
-  (btns || []).forEach((b, i) => {
-    const div = document.createElement('div');
-    div.className = 'custom-btn-item';
-    div.innerHTML = `
-      <input type="text" value="${escHtml(b.text)}" placeholder="按钮文字" data-idx="${i}" data-field="text">
-      <input type="text" value="${escHtml(b.url)}" placeholder="链接地址" data-idx="${i}" data-field="url" style="flex:1.5">
-      <button class="btn-remove" onclick="removeCustomBtn(${i})">✕</button>`;
-    container.appendChild(div);
-  });
+function renderRepos() {
+  const tb = document.getElementById('repo-tbody');
+  if (!wsState.repos.length) {
+    tb.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🌐</div><div class="empty-state-text">暂无仓库，点击「添加仓库」</div></div></td></tr>';
+    return;
+  }
+  tb.innerHTML = wsState.repos.map((r, i) => `
+    <tr>
+      <td style="font-size:22px">${escHtml(r.icon || '📄')}</td>
+      <td><b>${escHtml(r.name)}</b></td>
+      <td><span style="color:var(--text2)">${escHtml(r.full)}</span></td>
+      <td>${r.featured ? '⭐ 推荐' : '—'}</td>
+      <td class="file-actions">
+        <button class="btn btn-sm btn-ghost" onclick="showRepoForm(${i})">编辑</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRepo(${i})">删除</button>
+      </td>
+    </tr>`).join('');
 }
 
-function addCustomBtn() {
-  const s = getSettings();
-  if (!s.customButtons) s.customButtons = [];
-  s.customButtons.push({ text: '按钮文字', url: 'https://' });
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-  renderCustomButtons(s.customButtons);
+function showRepoForm(idx) {
+  const editing = idx !== null && idx !== undefined;
+  const r = editing ? { ...wsState.repos[idx] } : { name:'', full:'', desc:'', url:'', icon:'📄', featured:false, tags:[], tech:'Web', status:'已部署', upd:'稳定版' };
+  const tags = (r.tags || []).join(', ');
+  const wrap = document.getElementById('repo-form');
+  wrap.innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">名称 (name)</label><input class="form-input" id="rf-name" value="${escHtml(r.name)}" placeholder="home"></div>
+      <div class="form-group"><label class="form-label">仓库全称 (full)</label><input class="form-input" id="rf-full" value="${escHtml(r.full)}" placeholder="yanzien/home"></div>
+      <div class="form-group"><label class="form-label">链接 (url)</label><input class="form-input" id="rf-url" value="${escHtml(r.url)}" placeholder="https://yanzien.github.io/home"></div>
+      <div class="form-group"><label class="form-label">图标 (emoji)</label><input class="form-input" id="rf-icon" value="${escHtml(r.icon)}" placeholder="🏠"></div>
+      <div class="form-group full"><label class="form-label">描述 (desc)</label><textarea class="form-textarea" id="rf-desc" rows="2">${escHtml(r.desc)}</textarea></div>
+      <div class="form-group"><label class="form-label">技术 (tech)</label><input class="form-input" id="rf-tech" value="${escHtml(r.tech)}"></div>
+      <div class="form-group"><label class="form-label">状态 (status)</label><input class="form-input" id="rf-status" value="${escHtml(r.status)}"></div>
+      <div class="form-group"><label class="form-label">更新频率 (upd)</label><input class="form-input" id="rf-upd" value="${escHtml(r.upd)}"></div>
+      <div class="form-group"><label class="form-label">标签 (逗号分隔)</label><input class="form-input" id="rf-tags" value="${escHtml(tags)}" placeholder="个人主页, 响应式"></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:24px">
+        <input type="checkbox" id="rf-featured" ${r.featured ? 'checked' : ''}> <label style="font-size:13.5px;cursor:pointer" onclick="document.getElementById('rf-featured').click()">设为推荐 (首页⭐高亮)</label>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveRepo(${editing ? idx : 'null'})">💾 保存</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('repo-form').classList.remove('show')">取消</button>
+    </div>`;
+  wrap.classList.add('show');
+  wrap.scrollIntoView({ behavior: 'smooth' });
 }
 
-function removeCustomBtn(idx) {
-  const s = getSettings();
-  s.customButtons.splice(idx, 1);
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-  renderCustomButtons(s.customButtons);
+function escJs(s) { return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n'); }
+
+function serializeRepos(repos) {
+  const items = repos.map(r => {
+    const tags = '[' + (r.tags || []).map(t => `'${escJs(t)}'`).join(', ') + ']';
+    return `  { name:'${escJs(r.name)}', full:'${escJs(r.full)}', desc:'${escJs(r.desc)}', url:'${escJs(r.url)}', icon:'${escJs(r.icon)}', featured:${!!r.featured}, tags:${tags}, tech:'${escJs(r.tech)}', status:'${escJs(r.status)}', upd:'${escJs(r.upd)}' }`;
+  }).join(',\n');
+  return `const GITHUB_REPOS = [\n${items}\n];`;
 }
 
-function getCustomButtonsData() {
-  const items = document.querySelectorAll('#custom-btn-list .custom-btn-item');
-  return Array.from(items).map(item => ({
-    text: item.querySelector('[data-field="text"]').value.trim(),
-    url: item.querySelector('[data-field="url"]').value.trim(),
-  })).filter(b => b.text && b.url);
+async function saveRepo(idx) {
+  const r = {
+    name: document.getElementById('rf-name').value.trim(),
+    full: document.getElementById('rf-full').value.trim(),
+    url: document.getElementById('rf-url').value.trim(),
+    icon: document.getElementById('rf-icon').value.trim() || '📄',
+    desc: document.getElementById('rf-desc').value.trim(),
+    tech: document.getElementById('rf-tech').value.trim(),
+    status: document.getElementById('rf-status').value.trim(),
+    upd: document.getElementById('rf-upd').value.trim(),
+    featured: document.getElementById('rf-featured').checked,
+    tags: document.getElementById('rf-tags').value.split(',').map(s => s.trim()).filter(Boolean),
+  };
+  if (!r.name || !r.full) { toast('请填写名称和仓库全称', 'error'); return; }
+
+  if (idx === 'null' || idx === null || idx === undefined) wsState.repos.push(r);
+  else wsState.repos[idx] = r;
+
+  const serialized = serializeRepos(wsState.repos);
+  const newContent = wsState.content.replace(/const GITHUB_REPOS\s*=\s*\[[\s\S]*?\n\];/, serialized);
+  try {
+    wsState.sha = await ghSave('js/web-sync.js', newContent, wsState.sha, `update: 网页同步区 ${r.name}`);
+    wsState.content = newContent;
+    document.getElementById('repo-form').classList.remove('show');
+    renderRepos();
+    refreshDashboard();
+    toast('✅ 已保存并发布', 'success');
+  } catch(e) { toast(e.message, 'error'); }
 }
 
-function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+async function deleteRepo(idx) {
+  if (!confirm('确定删除该仓库卡片？')) return;
+  const name = wsState.repos[idx].name;
+  wsState.repos.splice(idx, 1);
+  const serialized = serializeRepos(wsState.repos);
+  const newContent = wsState.content.replace(/const GITHUB_REPOS\s*=\s*\[[\s\S]*?\n\];/, serialized);
+  try {
+    wsState.sha = await ghSave('js/web-sync.js', newContent, wsState.sha, `update: 删除仓库 ${name}`);
+    wsState.content = newContent;
+    renderRepos();
+    refreshDashboard();
+    toast('✅ 已删除', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
 
 // ============================================================
-//  文件管理
+//  首页文案管理
+// ============================================================
+let homeState = { content:'', sha:'', fields:[] };
+
+async function loadHomeText() {
+  if (!state.connected) { toast('请先连接 GitHub', 'error'); return; }
+  try {
+    const d = await ghGet('index.html');
+    homeState.sha = d.sha; homeState.content = d.content;
+    const fields = [];
+    const re = /data-home="([^"]+)"[^>]*>([\s\S]*?)<\/[a-z0-9]+>/gi;
+    let m;
+    while ((m = re.exec(d.content))) fields.push({ key: m[1], text: m[2] });
+    homeState.fields = fields;
+    renderHomeFields();
+    toast(`已加载 ${fields.length} 处首页文案`, 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderHomeFields() {
+  const c = document.getElementById('home-fields');
+  if (!homeState.fields.length) {
+    c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏠</div><div class="empty-state-text">未找到可编辑文案锚点</div></div>';
+    return;
+  }
+  c.innerHTML = homeState.fields.map((f, i) => `
+    <div class="form-group full">
+      <label class="form-label">${escHtml(f.key)} <span class="hint">(对应 index.html 中该段文字)</span></label>
+      <textarea class="form-textarea" id="hf-${i}" rows="3">${escHtml(f.text)}</textarea>
+    </div>`).join('');
+}
+
+async function saveHomeText() {
+  if (!homeState.fields.length) { toast('没有可保存的内容', 'error'); return; }
+  let content = homeState.content;
+  homeState.fields.forEach((f, i) => {
+    const newText = document.getElementById('hf-' + i).value;
+    const re = new RegExp(`(data-home="${f.key}"[^>]*>)[\\s\\S]*?(</[a-z0-9]+>)`, 'i');
+    content = content.replace(re, `$1${newText}$2`);
+  });
+  try {
+    homeState.sha = await ghSave('index.html', content, homeState.sha, 'update: 首页文案');
+    homeState.content = content;
+    toast('✅ 首页文案已发布', 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+//  文件管理（原始源码编辑）
 // ============================================================
 async function loadFileList() {
   const tbody = document.getElementById('file-tbody');
   tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text3)">加载中...</td></tr>';
-
   try {
     const fullRepo = `${state.user}/${state.repo}`;
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/`, {
-      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' }
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const files = await r.json();
-
     const allFiles = [];
-    async function walk(items, prefix='') {
+    const walk = async (prefix='') => {
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+                         : `${API}/repos/${fullRepo}/contents/`;
+      const r = await fetch(url, { headers: authHeaders() });
+      if (!r.ok) return;
+      const items = await r.json();
       for (const f of items) {
-        const path = prefix ? `${prefix}/${f.name}` : f.name;
-        if (f.type === 'dir') {
-          const sr = await fetch(`${API}/repos/${fullRepo}/contents/${path}`, {
-            headers: { 'Authorization': `Bearer ${state.token}` }
-          });
-          if (sr.ok) await walk(await sr.json(), path);
-        } else {
-          allFiles.push({ name: path, size: f.size, sha: f.sha, type: f.type });
-        }
+        const fp = prefix ? `${prefix}/${f.name}` : f.name;
+        if (f.type === 'dir') await walk(fp);
+        else allFiles.push({ name: fp, size: f.size, sha: f.sha });
       }
-    }
-    await walk(files);
-    allFiles.sort((a,b) => a.name.localeCompare(b.name));
+    };
+    await walk();
+    allFiles.sort((a, b) => a.name.localeCompare(b.name));
     state.remoteFiles = allFiles;
 
     tbody.innerHTML = '';
@@ -861,55 +850,29 @@ function getFileIcon(name) {
   const icons = { html:'📄', css:'🎨', js:'⚡', json:'📋', md:'📝', png:'🖼️', jpg:'🖼️', svg:'🖼️', exe:'⚙️', py:'🐍', txt:'📄' };
   return icons[ext] || '📄';
 }
-
 function formatSize(b) {
   if (b < 1024) return b + ' B';
   if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
   return (b/1048576).toFixed(1) + ' MB';
 }
 
-// ---- 在线编辑文件 ----
 async function editFile(path) {
-  const fullRepo = `${state.user}/${state.repo}`;
   try {
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
-      headers: { 'Authorization': `Bearer ${state.token}` }
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    const content = atob(data.content.replace(/\n/g, ''));
-
-    state.editingFile = { path, sha: data.sha };
+    const d = await ghGet(path);
+    state.editingFile = { path, sha: d.sha };
     document.getElementById('editor-path').textContent = path;
-    document.getElementById('editor-area').value = content;
+    document.getElementById('editor-area').value = d.content;
     document.getElementById('editor-wrap').classList.add('show');
     document.getElementById('editor-wrap').scrollIntoView({ behavior: 'smooth' });
-  } catch(e) {
-    toast(`读取失败: ${e.message}`, 'error');
-  }
+  } catch(e) { toast(`读取失败: ${e.message}`, 'error'); }
 }
 
 async function saveFile() {
   if (!state.editingFile) return;
   const content = document.getElementById('editor-area').value;
-  const b64 = btoa(unescape(encodeURIComponent(content)));
-  const fullRepo = `${state.user}/${state.repo}`;
-
   try {
-    const body = {
-      message: `update: 编辑 ${state.editingFile.path}`,
-      content: b64,
-      sha: state.editingFile.sha,
-    };
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(state.editingFile.path)}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
-      body: JSON.stringify(body)
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-
-    const newData = await r.json();
-    state.editingFile.sha = newData.sha;
+    const sha = await ghSave(state.editingFile.path, content, state.editingFile.sha, `update: 编辑 ${state.editingFile.path}`);
+    state.editingFile.sha = sha;
     toast(`✅ ${state.editingFile.path} 已保存`, 'success');
     log(`✅ 已保存: ${state.editingFile.path}`, 'ok');
   } catch(e) {
@@ -917,7 +880,6 @@ async function saveFile() {
     log(`❌ 保存失败: ${e.message}`, 'err');
   }
 }
-
 function closeEditor() {
   document.getElementById('editor-wrap').classList.remove('show');
   state.editingFile = null;
@@ -925,37 +887,25 @@ function closeEditor() {
 
 async function deleteFile(path) {
   if (!confirm(`确定删除 ${path}？此操作不可恢复！`)) return;
-  const fullRepo = `${state.user}/${state.repo}`;
   try {
-    // 获取 sha
-    const gr = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
-      headers: { 'Authorization': `Bearer ${state.token}` }
-    });
-    if (!gr.ok) throw new Error(`获取 SHA 失败`);
-    const { sha } = await gr.json();
-
-    const r = await fetch(`${API}/repos/${fullRepo}/contents/${encodeURIComponent(path)}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
+    const { sha } = await ghGet(path);
+    const r = await fetch(`${API}/repos/${state.user}/${state.repo}/contents/${encodeURIComponent(path)}`, {
+      method: 'DELETE', headers: authHeaders(),
       body: JSON.stringify({ message: `delete: 删除 ${path}`, sha })
     });
-    if (r.ok) {
-      toast(`✅ 已删除 ${path}`, 'success');
-      loadFileList();
-    } else throw new Error(`HTTP ${r.status}`);
-  } catch(e) {
-    toast(`删除失败: ${e.message}`, 'error');
-  }
+    if (r.ok) { toast(`✅ 已删除 ${path}`, 'success'); loadFileList(); }
+    else throw new Error(`HTTP ${r.status}`);
+  } catch(e) { toast(`删除失败: ${e.message}`, 'error'); }
 }
 
 // ============================================================
-//  部署功能
+//  发布 / 同步
 // ============================================================
 const logEl = document.getElementById('log-area');
 function log(msg, cls='') {
   const d = document.createElement('div');
   if (cls) d.className = 'log-' + cls;
-  const t = new Date().toLocaleTimeString('zh-CN',{hour12:false});
+  const t = new Date().toLocaleTimeString('zh-CN', { hour12:false });
   d.textContent = `[${t}] ${msg}`;
   logEl.appendChild(d);
   logEl.scrollTop = logEl.scrollHeight;
@@ -964,7 +914,6 @@ function clearLog() { logEl.innerHTML = ''; }
 
 async function startDeploy() {
   if (!state.connected) { toast('请先连接 GitHub', 'error'); switchPage('connect'); return; }
-
   const btn = document.getElementById('btn-deploy');
   btn.disabled = true;
   const pw = document.getElementById('progress-wrap');
@@ -972,96 +921,69 @@ async function startDeploy() {
   const fill = document.getElementById('progress-fill');
   const ptxt = document.getElementById('progress-text');
 
-  log('========== 开始部署 ==========', 'info');
+  log('========== 开始整站发布 ==========', 'info');
   const fullRepo = `${state.user}/${state.repo}`;
 
   try {
-    // 获取远程文件列表作为要部署的文件
-    ptxt.textContent = '正在扫描远程文件...'; fill.style.width = '5%';
-
+    ptxt.textContent = '正在扫描文件...'; fill.style.width = '5%';
     const allFiles = [];
-    async function scan(prefix='') {
-      const url = prefix
-        ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
-        : `${API}/repos/${fullRepo}/contents/`;
-      const r = await fetch(url, { headers: { 'Authorization': `Bearer ${state.token}` } });
+    const walk = async (prefix='') => {
+      const url = prefix ? `${API}/repos/${fullRepo}/contents/${encodeURIComponent(prefix)}`
+                         : `${API}/repos/${fullRepo}/contents/`;
+      const r = await fetch(url, { headers: authHeaders() });
       if (!r.ok) return;
       const items = await r.json();
       for (const f of items) {
         const fp = prefix ? `${prefix}/${f.name}` : f.name;
-        if (f.type === 'dir') await scan(fp);
+        if (f.type === 'dir') await walk(fp);
         else allFiles.push(fp);
       }
-    }
-    await scan();
-    log(`发现 ${allFiles.length} 个远程文件`, 'info');
+    };
+    await walk();
 
-    // 对于每个文件，从当前站点重新获取内容并上传
-    let successCount = 0, failCount = 0;
-    for (let i = 0; i < allFiles.length; i++) {
-      const f = allFiles[i];
-      // 跳过 admin.html 和不需要部署的文件
-      if (f === 'admin.html' || f.startsWith('desktop_app/') || f.endsWith('.spec')) {
-        log(`[${i+1}/${allFiles.length}] 跳过: ${f}`, 'dim');
-        continue;
-      }
+    const targets = allFiles.filter(f => !f.startsWith('desktop_app/') && !f.endsWith('.exe'));
+    log(`共 ${targets.length} 个网页文件将重新发布`, 'info');
 
-      ptxt.textContent = `处理: ${f} (${i+1}/${allFiles.length})`;
-      fill.style.width = `${5 + (i/allFiles.length)*70}%`;
-
+    let ok = 0, fail = 0;
+    for (let i = 0; i < targets.length; i++) {
+      const f = targets[i];
+      ptxt.textContent = `发布: ${f} (${i+1}/${targets.length})`;
+      fill.style.width = `${5 + (i / targets.length) * 90}%`;
       try {
-        // 从当前站点获取文件内容
-        const fr = await fetch(f);
-        if (!fr.ok) { log(`  ⚠️ 无法获取: ${f}`, 'warn'); failCount++; continue; }
-        const buf = await fr.arrayBuffer();
-        const bytes = new Uint8Array(buf);
-        let bin = '';
-        for (const b of bytes) bin += String.fromCharCode(b);
-        const b64 = btoa(bin);
-
-        // 创建 blob
-        const blobR = await fetch(`${API}/repos/${fullRepo}/git/blobs`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' },
-          body: JSON.stringify({ content: b64, encoding: 'base64' })
-        });
-        if (!blobR.ok) throw new Error(`Blob 失败: HTTP ${blobR.status}`);
-        const blobData = await blobR.json();
-        log(`  ✅ ${f} (${Math.round(b64.length*3/4)} bytes)`, 'ok');
-        successCount++;
-
-        await new Promise(r => setTimeout(r, 80));
+        const d = await ghGet(f);
+        await ghSave(f, d.content, d.sha, document.getElementById('deploy-msg').value || `publish: ${f}`);
+        ok++;
+        if (i % 3 === 0) log(`✅ ${f}`, 'ok');
       } catch(e) {
-        log(`  ❌ ${f}: ${e.message}`, 'err');
-        failCount++;
+        fail++;
+        log(`❌ ${f}: ${e.message}`, 'err');
       }
     }
 
-    // 用 Git Tree API 提交
-    ptxt.textContent = '正在构建 Tree...'; fill.style.width = '80%';
-    log('注意：增量模式使用 Contents API 单文件更新，跳过 Tree 构建', 'info');
-
-    ptxt.textContent = '部署完成'; fill.style.width = '100%';
-    log(`\n========== 部署完成 ==========`, 'ok');
-    log(`✅ 成功: ${successCount} | 跳过/失败: ${failCount}`, successCount > 0 ? 'ok' : 'warn');
-    log(`提示：各文件已通过 Contents API 逐个更新`, 'info');
-    toast(`部署完成：${successCount} 个文件已更新`, 'success');
-
+    fill.style.width = '100%';
+    ptxt.textContent = '发布完成';
+    log(`\n========== 发布完成 ==========`, 'ok');
+    log(`✅ 成功 ${ok} | 失败 ${fail}`, ok > 0 ? 'ok' : 'warn');
+    toast(`发布完成：${ok} 个文件`, 'success');
   } catch(err) {
     fill.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
-    ptxt.textContent = `❌ 部署失败: ${err.message}`;
-    log(`❌ 部署失败: ${err.message}`, 'err');
-    toast(`部署失败: ${err.message}`, 'error');
+    ptxt.textContent = `❌ 发布失败: ${err.message}`;
+    log(`❌ 发布失败: ${err.message}`, 'err');
+    toast(`发布失败: ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
   }
 }
 
 // ============================================================
+//  工具
+// ============================================================
+function escHtml(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+// ============================================================
 //  初始化
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  // 恢复连接
   const savedUser = localStorage.getItem('admin_user');
   const savedRepoName = localStorage.getItem('admin_repo_name');
   const savedBranch = localStorage.getItem('admin_branch');
@@ -1079,9 +1001,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('inp-token').value = savedToken;
     updateConnUI(`${savedUser}/${savedRepoName}`, '已连接');
   }
-
-  // 加载站点设置到表单
-  loadSiteSettings();
 });
 </script>
 </body>
