@@ -9,7 +9,7 @@ const GITHUB_REPOS = [
   { name:'oitablemaker', full:'yanzien/oitablemaker', desc:'📊 OI 表格制作器 · 为信息学竞赛选手设计的表格生成工具，快速制作比赛记录表、统计表。', url:'https://yanzien.github.io/oitablemaker', icon:'📊', featured:false, tags:['OI', '表格', '工具'], tech:'Web Tool', status:'已部署', upd:'稳定版' },
   { name:'smartwenshi', full:'yanzien/smartwenshi', desc:'📖 智能文言文 · AI 驱动的文言文学习工具，提供古文解析、注释对照、语法分析。', url:'https://yanzien.github.io/smartwenshi', icon:'📖', featured:false, tags:['文言文', 'AI', '教育'], tech:'AI + Web', status:'已部署', upd:'实验性' },
   { name:'mdqpaste', full:'yanzien/mdqpaste', desc:'📋 MDQ Paste · Markdown 代码粘贴分享工具，语法高亮、一键复制、短链生成。', url:'https://yanzien.github.io/mdqpaste', icon:'📋', featured:false, tags:['Markdown', '代码分享'], tech:'Web Tool', status:'已部署', upd:'稳定版' },
-  { name:'in-wlxy', full:'yanzien/in-wlxy', desc:'🎓 未来学校入口 · 相关项目入口页面 / 门户应用。', url:'https://yanzien.github.io/in-wlxy', icon:'🎓', featured:false, tags:['校园', '门户'], tech:'Web Portal', status:'已部署', upd:'按需更新' }
+  { name:'in-wlxy', full:'yanzien/in-wlxy', desc:'骗你的啥都没有，没有任何必要查看', url:'https://yanzien.github.io/in-wlxy', icon:'🎓', featured:false, tags:['空页'], tech:'Web Portal', status:'已部署', upd:'按需更新' }
 ];
 
 function renderRepoCards(){
