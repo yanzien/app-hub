@@ -168,7 +168,7 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
   <div class="divider" data-tm="tm-divider">古 今 往 来</div>
 
   <div class="ptitle" data-tm="tm-past-title">🕰️ 穿越到过去？</div>
-  <div class="phint" data-tm="tm-past-hint">过去藏着遗憾与秘密……也许也该回去看看……</div>
+  <div class="phint" data-tm="tm-past-hint">过去藏着遗憾与秘密……但这项功能需要特权。</div>
   <button class="past-btn" data-tm="tm-past-btn" onclick="openVip()">查看「穿越到过去」详情 →</button>
 </div>
 
@@ -226,8 +226,7 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
     <div style="text-align:center">
       <span class="vip-badge">👑 PREMIUM</span>
       <div class="vip-title" data-tm="tm-vip-title">穿越到过去 · 特权会员</div>
-      <div class="vip-sub" data-tm="tm-vip-sub">此功能需开通「时空特权会员」后方可使用
-过去藏着遗憾与秘密……但这项功能需要特权。</div>
+      <div class="vip-sub" data-tm="tm-vip-sub">此功能需开通「时空特权会员」后方可使用</div>
       <div class="vip-feat">
         <div data-tm="tm-feat-1">✅ 无限次穿越到任意过去时间点</div>
         <div data-tm="tm-feat-2">✅ 自定义历史时刻（精确到秒）</div>
@@ -266,19 +265,19 @@ h1{font-size:34px;font-weight:800;background:linear-gradient(120deg,#a5b4fc,#c4b
   <div class="vip-card" style="text-align:center">
     <button class="vip-x" onclick="closePay()">×</button>
     <div class="pay-title" data-tm="tm-pay-title">💳 请加 Young 微信付款</div>
-    <div class="pay-who" data-tm="tm-pay-who">付款后截图发给 Young 验证，验证通过即刻开通会员~
-（绝对不是为了忽悠你加我微信）</div>
+    <div class="pay-who" data-tm="tm-pay-who">付款后截图发给 Young 验证，验证通过即刻开通会员~</div>
     <div class="qr">
       <img src="assets/young-wechat.png" alt="Young微信好友二维码" onerror="this.parentNode.innerHTML='<div class=\'ph\'>📱 请加 Young 微信好友<br>付款后截图验证开通</div>'">
     </div>
     <div class="pay-note" data-tm="tm-pay-note">支持微信好友转账 / 扫码付款，金额以所选套餐为准</div>
-    <div class="pay-fine" data-tm="tm-pay-fine">* 本支付为真实有效支付（确信）（这是名片不是付款码）</div>
+    <div class="pay-fine" data-tm="tm-pay-fine">* 本支付为真实有效支付（确信）</div>
     <button class="vip-back" style="margin-top:16px" onclick="backToVip()">← 返回套餐</button>
   </div>
 </div>
 
 <div class="foot" data-tm="tm-foot">yanzien's App Hub · 时空研究所荣誉出品 · 仅供娱乐</div>
 
+<script src="js/tm-done.js"></script>
 <script>
 let timer=null,start=0,dur=0,abortable=false,curT=5,curU='seconds';
 const UNIT={seconds:1000,minutes:60000,hours:3600000,days:86400000};
@@ -321,26 +320,30 @@ function startTravel(t,u){
 }
 function done(t,u){
   const now=new Date();
-  let msg,det,fact;
-  if(u==='seconds'&&t<=5){msg='🎉 恭喜你穿越到 '+t+' 秒后了！';det='你成功穿越了 '+t+' 秒，时间虽短，但也是真穿越！';fact='💡 冷知识：你确实实实在在等了 '+t+' 秒，所以从某种意义上，你真的穿越了。';}
-  else if(u==='minutes'&&t===1){msg='🎉 恭喜你穿越到 1 分钟后了！';det='1 分钟漫长等待 you made it！';fact='💡 冷知识：这一分钟里你什么都没做，却成功抵达了「未来」。';}
-  else if(u==='minutes'&&t===5){msg='🎉 恭喜你穿越到 5 分钟后了！';det='5 分钟！你居然坚持下来了。';fact='💡 冷知识：5 分钟前你还在点按钮，现在你已经站在未来了。';}
-  else if(u==='hours'){msg='🎉 恭喜你穿越到 '+t+' 小时后了！';det='你真的等了 '+t+' 个小时，这毅力佩服。';fact='💡 冷知识：期间你的电脑可能进入了休眠，但时空引擎坚守岗位。';}
-  else if(u==='days'){msg='🎉 恭喜你穿越到 '+t+' 天后了！';det=t+' 天后的你，还好吗？';fact='💡 冷知识：' + t + ' 天 = ' + (t*24) + ' 小时 = ' + (t*1440) + ' 分钟，你全都熬过来了。';}
-  else{msg='🎉 恭喜你穿越到 '+fmt(dur)+' 后了！';det='穿越耗时 '+fmt(dur)+'。';fact='💡 冷知识：你确实实实在在等了 '+fmt(dur)+'，所以你真的穿越了！';}
-  document.getElementById('sTitle').textContent=msg;
-  document.getElementById('sDetail').textContent=det;
+  let key;
+  if(u==='seconds'&&t<=5) key='sec';
+  else if(u==='minutes'&&t===1) key='min1';
+  else if(u==='minutes'&&t===5) key='min5';
+  else if(u==='hours') key='hours';
+  else if(u==='days') key='days';
+  else key='custom';
+  const c = (window.TM_DONE && TM_DONE[key]) ? TM_DONE[key] : {msg:'🎉 恭喜你穿越成功！',det:'',fact:''};
+  const rep = s => (s||'').replace(/\{t\}/g,t).replace(/\{h\}/g,t*24).replace(/\{m\}/g,t*1440).replace(/\{dur\}/g,fmt(dur));
+  document.getElementById('sTitle').textContent=rep(c.msg);
+  document.getElementById('sDetail').textContent=rep(c.det);
   document.getElementById('sTime').textContent='⏱ 当前时间：'+now.toLocaleString('zh-CN');
-  document.getElementById('sFact').textContent=fact;
+  document.getElementById('sFact').textContent=rep(c.fact);
   show('success');
 }
 function askAbort(){show('warn');}
 function doAbort(){
   const el=Date.now()-start;clearInterval(timer);timer=null;
-  document.getElementById('sTitle').textContent='⏹ 你中途退出了';
-  document.getElementById('sDetail').textContent='你只穿越了 '+fmt(el)+'。虽然没到终点，但勇气可嘉！';
+  const c = (window.TM_DONE && TM_DONE.abort) ? TM_DONE.abort : {title:'⏹ 你中途退出了',det:'',fact:''};
+  const rep = s => (s||'').replace(/\{el\}/g,fmt(el));
+  document.getElementById('sTitle').textContent=rep(c.title);
+  document.getElementById('sDetail').textContent=rep(c.det);
   document.getElementById('sTime').textContent='⏱ 当前时间：'+new Date().toLocaleString('zh-CN');
-  document.getElementById('sFact').textContent='💡 好消息：时空裂缝已自动修复，平行宇宙未分裂，你仍然只有一个你。';
+  document.getElementById('sFact').textContent=rep(c.fact);
   show('success');
 }
 function reset(){hideAll();document.getElementById('main').style.display='block';document.getElementById('main').classList.add('on');document.getElementById('customRow').classList.add('hidden');document.getElementById('abortBtn').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'});}
